@@ -1,45 +1,24 @@
-# Hermes Skills
+# AI 足迹
 
-Custom skills for [Hermes Agent](https://hermes-agent.nousresearch.com/) — curated workflows, tools, and automations built and battle-tested in production.
+AI 足迹是一个 AI 驱动的网页收藏工具。保存网页后，AI 自动提取内容、分类、打标签，让知识管理不再费力。
 
-## What's a Skill?
+## 功能
 
-A skill is a reusable workflow document (SKILL.md) that teaches Hermes how to handle specific tasks. Each skill includes step-by-step instructions, common pitfalls, and proven commands.
+- **一键收藏**：粘贴链接，AI 自动提取标题和摘要
+- **智能分类**：AI 自动归类，也支持手动管理
+- **共享分类集**：共创模式（多人共建）+ 订阅模式（关注他人的收藏）
+- **全文搜索**：搜索标题、URL、摘要，快速定位
 
-## Structure
+## 使用
 
-```
-hermes-skills/
-├── README.md
-├── devops/          # Infrastructure, deployment, server management
-├── productivity/    # Feishu, Notion, Google Workspace integrations
-├── frontend/        # H5, uni-app, map integrations
-├── kanban/          # Multi-agent Kanban collaboration model
-└── workflows/       # Project-specific workflows (e.g., ai-favorites)
-```
+访问 [ai.ocean94.com](https://ai.ocean94.com)，微信或手机号注册即可使用。
 
-Each skill lives in its own directory with a `SKILL.md` file.
+## Agent 接入
 
-## Usage
+AI 足迹提供 Agent API，你的 Hermes / Open Claw / Claude Code 等 AI Agent 可以读写你的足迹数据。
 
-Copy the skill directory into your Hermes skills folder:
+[→ 接入指南（ai-footprints skill）](ai-footprints/SKILL.md)
 
-```bash
-cp -r hermes-skills/<category>/<skill-name> ~/.hermes/skills/<category>/
-```
+## 关于本项目
 
-Or symlink for auto-updates:
-
-```bash
-ln -s $(pwd)/hermes-skills/<category>/<skill-name> ~/.hermes/skills/<category>/<skill-name>
-```
-
-Then restart your gateway or start a new session.
-
-## Contributing
-
-These skills are battle-tested in real workflows. PRs welcome for improvements, bug fixes, and new skills.
-
-## License
-
-MIT
+AI 足迹是私有项目，GitHub 上仅公开 Agent 接入 skill，便于第三方 AI Agent 集成。
