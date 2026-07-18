@@ -134,17 +134,23 @@ python3 scripts/footprints.py agent_magic_link
 
 ## 常用模式
 
-### 移动足迹到另一个分类
+### 更改足迹的分类
 
-足迹没有"移动"API，通过更新分类列表实现：
+足迹与分类是**多对多**关系，一条足迹可同时属于多个分类。`footprints_update --category-ids` 会**替换**整个分类列表（不是追加），所以：
 
 ```bash
 # 1. 查当前分类
 footprints_get 42
 # → categories: [{id: 3, name: "阅读"}, {id: 5, name: "AI"}]
 
-# 2. 去掉 3（阅读），加上 7（技术），保留 5（AI）
+# 2. 想保留 AI（5），去掉阅读（3），加上技术（7）
 footprints_update 42 --category-ids 5,7
+
+# 3. 想只保留 AI（5），去掉所有其他分类
+footprints_update 42 --category-ids 5
+```
+
+> ⚠️ 关键规则：`--category-ids` 传什么，足迹就只关联哪些分类。如果要保留原有分类，必须把原分类 ID 也带上。
 ```
 
 ### 批量整理：多篇足迹归入同一新分类
