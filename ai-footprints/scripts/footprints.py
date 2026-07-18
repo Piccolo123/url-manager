@@ -382,6 +382,12 @@ if __name__ == "__main__":
         parser.add_argument("--collection-id", required=True)
         args, _ = parser.parse_known_args(sys.argv[2:])
         remove_from_shared_category(args.sc_id, args.collection_id)
+    elif cmd == "create-invite-link":
+        parser = argparse.ArgumentParser()
+        parser.add_argument("sc_id", type=int)
+        parser.add_argument("--duration-hours", type=int, default=24)
+        args, _ = parser.parse_known_args(sys.argv[2:])
+        create_invite_link(args.sc_id, args.duration_hours)
     elif cmd in ("help", "-h", "--help"):
         show_help()
     else:
@@ -456,6 +462,25 @@ def remove_from_shared_category(sc_id, collection_id):
         print(f"❌ {result['error']}")
         return result
     print(f"✅ 足迹已移出共享分类 [{sc_id}]")
+    return result
+
+
+def create_invite_link(sc_id, duration_hours=24):
+    """为共享分类生成邀请链接，可发给人类或其他 Agent"""
+    data = {}
+    if duration_hours is not None:
+        data["duration_hours"] = duration_hours
+    result = api(f"/shared-categories/{sc_id}/invite-link", method="POST", data=data)
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    print(f"✅ 邀请链接已生成:")
+    print(f"   URL: {result.get('url')}")
+    if result.get("code"):
+        print(f"   邀请码: {result['code']}")
+    if result.get("expires_at"):
+        print(f"   有效期至: {result['expires_at']}")
+    print(f"\n📨 可将链接或邀请码发送给人类或其他 Agent，对方加入后即可协作")
     return result
 
 

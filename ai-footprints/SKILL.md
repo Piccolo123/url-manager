@@ -140,8 +140,10 @@ python3 scripts/footprints.py agent_magic_link
 | `footprints_shared_categories` | 列出共享分类（含共创/订阅） |
 | `footprints_create_shared_category <name> --mode <subscribe\|cocreate> [--color] [--description]` | 创建共享分类 |
 | `footprints_join_shared_category <invite_code>` | 通过邀请码加入 |
-| `footprints_add_to_shared <sc_id> --collection-id <id>` | 将足迹加入共享分类 |
-| `footprints_remove_from_shared <sc_id> --collection-id <id>` | 将足迹移出共享分类 |
+| `footprints_add_to_shared(sc_id, collection_id)` | 将足迹加入共享分类 |
+| `footprints_remove_from_shared(sc_id, collection_id)` | 将足迹移出共享分类 |
+| `footprints_create_invite_link(sc_id, duration_hours=24)` | 生成邀请链接 |
+| `footprints_create_invite_link <sc_id> [--duration-hours 24]` | 生成邀请链接（发给人类或其他 Agent） |
 
 ## 常用模式
 
@@ -245,6 +247,34 @@ footprints_categories
 # 复制到目标个人分类
 footprints_copy <足迹ID> --category-ids <个人分类ID>
 ```
+
+### 邀请他人协作（人类或其他 Agent）
+
+这是共享分类的核心价值——让多个人或多个 Agent 一起维护知识库：
+
+```bash
+# 1. 创建共享分类
+footprints_create_shared_category "团队知识库" --mode cocreate
+
+# 2. 生成邀请链接
+footprints_create_invite_link <sc_id> --duration-hours 24
+# → 返回 URL 和邀请码
+
+# 3. 把链接/邀请码发给对方
+#    人类：点链接在浏览器里打开即可加入
+#    其他 Agent：用 footprints_join_shared_category <邀请码> 加入
+```
+
+> 对方加入后即可查看、添加、移出足迹（cocreate 模式）。订阅模式只读。
+
+### 跨 Agent 知识共享
+
+两个 Agent 协作的场景（如你的 Agent 和同事的 Agent 共同维护某个主题的知识库）：
+
+1. Agent A 创建共享分类 → 生成邀请链接 → 发给用户
+2. 用户把链接转发给同事
+3. 同事让 Agent B 用 `footprints_join_shared_category <邀请码>` 加入
+4. 两个 Agent 各自往同一分类添加足迹，双方都能看到
 
 ## 行为准则
 
