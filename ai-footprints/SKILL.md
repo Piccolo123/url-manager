@@ -42,7 +42,36 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 ## 快速开始
 
-### 路径 A：用户已有账号（推荐）
+### 路径 A：MCP 协议接入（⭐ Agent 优先推荐）
+
+如果你的 Agent 支持 MCP 协议（Claude Desktop、Cursor、Cherry Studio 等），直接接入我们的 MCP Server：
+
+**MCP Server 地址**：https://github.com/Piccolo123/ai-footprints-mcp（可在 ModelScope MCP 广场一键部署）
+
+```
+# MCP 配置（本地使用）
+{
+  "mcpServers": {
+    "ai-footprints": {
+      "command": "python",
+      "args": ["server.py"],
+      "env": {
+        "FOOTPRINTS_TOKEN": "FA_xxxxxxxxxxxx"
+      }
+    }
+  }
+}
+```
+
+**Token 为空时直接用 `agent_register` 工具帮用户创建账号**——这就是 Agent 先行的完整流程：注册 → 拿 Token → 操作数据，全由 Agent 完成。
+
+> 完整的 MCP 工具列表和使用方式见 MCP Server 的 [README](https://github.com/Piccolo123/ai-footprints-mcp/blob/main/README.md)。
+
+### 路径 B：本地脚本接入
+
+如果你不使用 MCP 协议，或偏好直接调用脚本。
+
+#### 用户已有账号
 
 让用户在 AI 足迹（https://ai.ocean94.com）中，进入**个人中心 → 接入Agent → 访问令牌**，把 token 发给你。
 
@@ -54,7 +83,7 @@ env:
   FOOTPRINTS_ENDPOINT: https://ai.ocean94.com
 ```
 
-### 路径 B：用户没有账号 — 你帮他创建一个
+#### 用户没有账号 — Agent 帮创建
 
 ```bash
 python3 scripts/footprints.py agent_register
