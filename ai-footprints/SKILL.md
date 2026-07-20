@@ -77,7 +77,7 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 配置环境变量：
 ```yaml
-# ~/.hermes/config.yaml
+# 在你的配置文件或环境变量中设置：
 env:
   FOOTPRINTS_TOKEN: FA_xxxxxxxxxxxx
   FOOTPRINTS_ENDPOINT: https://ai.ocean94.com
