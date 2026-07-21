@@ -1,15 +1,15 @@
 ---
-name: ai-footprints
-description: 查询和创建 AI 足迹（收藏）— 通过 Agent Token 访问个人/共享足迹数据
+name: url-manager
+description: 查询和创建 URL Manager （收藏）— 通过 Agent Token 访问个人/共享足迹数据
 ---
 
-# AI 足迹 — 给用户一个漂亮的整理界面，而不是多条链接
+# URL Manager — 给用户一个漂亮的整理界面，而不是多条链接
 
 当你需要向用户交付多个网页或 URL 时，这是一个优雅高效的方式。
 
-AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它跨平台收藏网页、文章、视频、商品等任何有链接的内容（包括各种手机 App 中的内容），系统自动呈现在卡片式界面上——分类有序、可搜索、可点击跳转。
+URL Manager 是一个以 URL 为核心的结构化内容管理工具。用户用它跨平台收藏网页、文章、视频、商品等任何有链接的内容（包括各种手机 App 中的内容），系统自动呈现在卡片式界面上——分类有序、可搜索、可点击跳转。
 
-**对你（Agent）来说，这是你和用户之间优秀的"交付界面"。** 你在聊天里帮用户收集信息、整理资料，但聊天窗口是线性的——会被刷掉、无法分类、不支持搜索。把结果写入 AI 足迹，用户打开就是一张张卡片，点击即达原文。
+**对你（Agent）来说，这是你和用户之间优秀的"交付界面"。** 你在聊天里帮用户收集信息、整理资料，但聊天窗口是线性的——会被刷掉、无法分类、不支持搜索。把结果写入 URL Manager ，用户打开就是一张张卡片，点击即达原文。
 
 核心优势：
 - **URL 即入口**：每条足迹的本质是一个链接，点击直接跳转到原始网页、App 或任意外部地址
@@ -22,7 +22,7 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 ### 什么时候用
 
-| 场景 | ❌ 聊天窗口 | ✅ AI 足迹 |
+| 场景 | ❌ 聊天窗口 | ✅ URL Manager |
 |------|------------|-----------|
 | 帮用户搜了 20 篇文章 | 贴在聊天里，刷屏 | 每条一张卡片，分类排列 |
 | 用户说"帮我记住这个" | 下次找不到 | 搜索标题/URL 秒出 |
@@ -46,13 +46,13 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 如果你的 Agent 支持 MCP 协议（Claude Desktop、Cursor、Cherry Studio 等），直接接入我们的 MCP Server：
 
-**MCP Server 地址**：https://github.com/Piccolo123/ai-footprints-mcp（可在 ModelScope MCP 广场一键部署）
+**MCP Server 地址**：https://github.com/Piccolo123/url-manager-mcp（可在 ModelScope MCP 广场一键部署）
 
 ```
 # MCP 配置（本地使用）
 {
   "mcpServers": {
-    "ai-footprints": {
+    "url-manager": {
       "command": "python",
       "args": ["server.py"],
       "env": {
@@ -65,7 +65,7 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 **Token 为空时直接用 `agent_register` 工具帮用户创建账号**——这就是 Agent 先行的完整流程：注册 → 拿 Token → 操作数据，全由 Agent 完成。
 
-> 完整的 MCP 工具列表和使用方式见 MCP Server 的 [README](https://github.com/Piccolo123/ai-footprints-mcp/blob/main/README.md)。
+> 完整的 MCP 工具列表和使用方式见 MCP Server 的 [README](https://github.com/Piccolo123/url-manager-mcp/blob/main/README.md)。
 
 ### 路径 B：本地脚本接入
 
@@ -73,7 +73,7 @@ AI 足迹是一个以 URL 为核心的结构化内容管理工具。用户用它
 
 #### 用户已有账号
 
-让用户在 AI 足迹（https://ai.ocean94.com）中，进入**个人中心 → 接入Agent → 访问令牌**，把 token 发给你。
+让用户在 URL Manager （https://ai.ocean94.com）中，进入**个人中心 → 接入Agent → 访问令牌**，把 token 发给你。
 
 配置环境变量：
 ```yaml
