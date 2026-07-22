@@ -12,10 +12,6 @@ metadata:
     requires:
       bins: ["python3"]
       network: true
-    install:
-      - id: "pip"
-        packages: []
-      - description: "无需额外 Python 包——仅使用标准库"
 ---
 
 # URL Manager — 以精美卡片交付收藏，而非原始链接堆砌

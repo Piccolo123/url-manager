@@ -12,10 +12,6 @@ metadata:
     requires:
       bins: ["python3"]
       network: true
-    install:
-      - id: "pip"
-        packages: []
-      - description: "No external Python packages required — stdlib only"
 ---
 
 # URL Manager — Deliver beautiful card-based collections, not raw links
