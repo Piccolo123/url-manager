@@ -5,7 +5,17 @@ license: MIT
 compatibility: 需要 Python 3.10+ 和网络访问 https://ai.ocean94.com
 metadata:
   author: Piccolo123
-  version: "2.0.1"
+  version: "2.1.0"
+  openclaw:
+    emoji: "🔗"
+    minGatewayVersion: "2026.6.0"
+    requires:
+      bins: ["python3"]
+      network: true
+    install:
+      - id: "pip"
+        packages: []
+      - description: "无需额外 Python 包——仅使用标准库"
 ---
 
 # URL Manager — 以精美卡片交付收藏，而非原始链接堆砌
@@ -30,7 +40,7 @@ if [ -z "$FOOTPRINTS_TOKEN" ]; then
 fi
 
 # 3. 验证连接
-python3 scripts/footprints.py footprints_me
+python3 scripts/footprints.py python3 scripts/footprints.py me
 ```
 
 ## 工具速查
@@ -41,40 +51,40 @@ python3 scripts/footprints.py footprints_me
 
 | 命令 | 用户说……时使用 |
 |------|--------------|
-| `footprints_add --url <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
-| `footprints_get <id>` | "看看这条的详情" |
-| `footprints_search <query>` | "找那篇关于 Docker 的文章" |
-| `footprints_list [--category-id <id>] [--limit <n>]` | "看看我的收藏" |
+| `python3 scripts/footprints.py add --url <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
+| `python3 scripts/footprints.py get <id>` | "看看这条的详情" |
+| `python3 scripts/footprints.py search <query>` | "找那篇关于 Docker 的文章" |
+| `python3 scripts/footprints.py list [--category-id <id>] [--limit <n>]` | "看看我的收藏" |
 
 ### 整理
 
 | 命令 | 用户说……时使用 |
 |------|--------------|
-| `footprints_update <id> --title <t> --description <d> --category-ids <ids> --tags <tags>` | "改个标题 / 移到另一个分类" |
-| `footprints_batch_update <updates>` | "帮我把收藏整理一下"（最多 50 条） |
-| `footprints_categories` | 了解有哪些分类 |
-| `footprints_create_category <name> [--category-set-id <id>]` | "新建一个分类" |
-| `footprints_tags` | 了解已有标签 |
-| `footprints_category_sets` | 列出分类集 |
-| `footprints_create_category_set <name>` | "建个工作区" |
+| `python3 scripts/footprints.py update <id> --title <t> --description <d> --category-ids <ids> --tags <tags>` | "改个标题 / 移到另一个分类" |
+| `python3 scripts/footprints.py batch-update <updates>` | "帮我把收藏整理一下"（最多 50 条） |
+| `python3 scripts/footprints.py categories` | 了解有哪些分类 |
+| `python3 scripts/footprints.py create-category <name> [--category-set-id <id>]` | "新建一个分类" |
+| `python3 scripts/footprints.py tags` | 了解已有标签 |
+| `python3 scripts/footprints.py category-sets` | 列出分类集 |
+| `python3 scripts/footprints.py create-category_set <name>` | "建个工作区" |
 
 ### 共享
 
 | 命令 | 用户说……时使用 |
 |------|--------------|
-| `footprints_create_shared_category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
-| `footprints_create_invite_link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
-| `footprints_join_shared_category <invite_code>` | "我有个邀请码" |
-| `footprints_add_to_shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
-| `footprints_remove_from_shared <sc_id> <collection_id>` | "把这个从共享里移除" |
-| `footprints_copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
+| `python3 scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
+| `python3 scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
+| `python3 scripts/footprints.py join-shared-category <invite_code>` | "我有个邀请码" |
+| `python3 scripts/footprints.py add_to_shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
+| `python3 scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "把这个从共享里移除" |
+| `python3 scripts/footprints.py copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
 
 ### 交付
 
 | 命令 | 用户说……时使用 |
 |------|--------------|
-| `footprints_me` | 会话开始时确认身份 |
-| `agent_magic_link` | 整理完毕 → 生成链接 → 发给用户 |
+| `python3 scripts/footprints.py me` | 会话开始时确认身份 |
+| `python3 scripts/footprints.py agent_magic_link` | 整理完毕 → 生成链接 → 发给用户 |
 
 ## 核心工作流
 
@@ -82,37 +92,37 @@ python3 scripts/footprints.py footprints_me
 
 ```
 1. 自动注册 → Token 保存到 ~/.url-manager-token
-2. footprints_add url="..." → 添加收藏
-3. footprints_categories → 了解已有结构
-4. footprints_create_category name="..." → 创建分类
-5. footprints_update id category_ids="..." → 归类
+2. python3 scripts/footprints.py add url="..." → 添加收藏
+3. python3 scripts/footprints.py categories → 了解已有结构
+4. python3 scripts/footprints.py create-category name="..." → 创建分类
+5. python3 scripts/footprints.py update id category_ids="..." → 归类
 6. agent_magic_link → 发链接："整理好了，点这里查看 → [链接]"
 ```
 
 ### 老用户 — 日常使用
 
 ```
-1. footprints_me → 确认身份
-2. footprints_categories + footprints_tags → 了解当前结构
-3. footprints_search query → 找到目标
-4. footprints_add / footprints_update → 操作
+1. python3 scripts/footprints.py me → 确认身份
+2. python3 scripts/footprints.py categories + python3 scripts/footprints.py tags → 了解当前结构
+3. python3 scripts/footprints.py search query → 找到目标
+4. python3 scripts/footprints.py add / python3 scripts/footprints.py update → 操作
 ```
 
 ### 团队共享
 
 ```
-1. footprints_create_shared_category name="团队知识库" mode=cocreate
-2. footprints_create_invite_link sc_id → 把邀请码发给同事
-3. 同事：footprints_join_shared_category code
-4. 所有人：footprints_add_to_shared sc_id collection_id → 共建知识库
+1. python3 scripts/footprints.py create-shared-category name="团队知识库" mode=cocreate
+2. python3 scripts/footprints.py create-invite-link sc_id → 把邀请码发给同事
+3. 同事：python3 scripts/footprints.py join-shared-category code
+4. 所有人：python3 scripts/footprints.py add_to_shared sc_id collection_id → 共建知识库
 ```
 
 ### 批量整理
 
 ```
-1. footprints_list --limit 100 → 获取全部收藏
-2. footprints_categories → 规划目标分类
-3. footprints_batch_update '[
+1. python3 scripts/footprints.py list --limit 100 → 获取全部收藏
+2. python3 scripts/footprints.py categories → 规划目标分类
+3. python3 scripts/footprints.py batch-update '[
      {"id":"uuid1","category_ids":"1,3"},
      {"id":"uuid2","title":"新标题","category_ids":"2,5"}
    ]' → 一次性修改（每次最多 50 条）
@@ -125,29 +135,29 @@ python3 scripts/footprints.py footprints_me
 ### 更改收藏的分类
 
 ```bash
-footprints_get 42
+python3 scripts/footprints.py get 42
 # → categories: [{id: 3, name: "阅读"}, {id: 5, name: "AI"}]
 
 # 保留 AI，去掉阅读，加上技术（7）
-footprints_update 42 --category-ids 5,7
+python3 scripts/footprints.py update 42 --category-ids 5,7
 ```
 
 ### 批量归入新分类
 
 ```bash
-footprints_create_category "新主题"    # → 返回新分类 ID
-footprints_list --limit 100
+python3 scripts/footprints.py create-category "新主题"    # → 返回新分类 ID
+python3 scripts/footprints.py list --limit 100
 # 对每一条匹配的收藏：
-footprints_update <id> --category-ids <现有ID>,<新分类ID>
+python3 scripts/footprints.py update <id> --category-ids <现有ID>,<新分类ID>
 ```
 
 ### 合并两个分类
 
 ```bash
-footprints_categories                      # 记下源和目标 ID
-footprints_list --category-id <源分类ID>   # 列出源分类下全部收藏
+python3 scripts/footprints.py categories                      # 记下源和目标 ID
+python3 scripts/footprints.py list --category-id <源分类ID>   # 列出源分类下全部收藏
 # 逐条将源分类 ID 替换为目标分类 ID
-footprints_update <id> --category-ids <目标ID>,<其他ID>
+python3 scripts/footprints.py update <id> --category-ids <目标ID>,<其他ID>
 # 告知用户：空分类"源"已可删除（通过网页端操作）
 ```
 
@@ -156,26 +166,26 @@ footprints_update <id> --category-ids <目标ID>,<其他ID>
 用户说"把 github.com 的都放到 GitHub 分类里"：
 
 ```bash
-footprints_list --limit 200
+python3 scripts/footprints.py list --limit 200
 # 在内存中过滤：url 包含 "github.com" 的条目
-footprints_create_category "GitHub"
+python3 scripts/footprints.py create-category "GitHub"
 # 逐条追加：
-footprints_update <id> --category-ids <现有ID>,<GitHub分类ID>
+python3 scripts/footprints.py update <id> --category-ids <现有ID>,<GitHub分类ID>
 ```
 
 ### 按标签筛选并批量加分类
 
 ```bash
-footprints_search docker
+python3 scripts/footprints.py search docker
 # 筛选 tag_names 包含 "docker" 的结果
 # 逐条追加目标分类：
-footprints_update <id> --category-ids <现有ID>,<目标分类ID>
+python3 scripts/footprints.py update <id> --category-ids <现有ID>,<目标分类ID>
 ```
 
 ### 整理未分类的收藏
 
 ```bash
-footprints_list --limit 100
+python3 scripts/footprints.py list --limit 100
 # 筛选 category_ids 为空或仅默认的条目
 # 列出给用户挑选分类
 # 批量更新选中的条目
@@ -186,16 +196,16 @@ footprints_list --limit 100
 发现标签和分类之间的空白——例如 #docker 出现频繁但没有"Docker"分类：
 
 ```bash
-footprints_tags        # 高频标签
-footprints_categories  # 已有分类
+python3 scripts/footprints.py tags        # 高频标签
+python3 scripts/footprints.py categories  # 已有分类
 # 交叉比对：有标签无对应分类 → 建议用户创建
 ```
 
 ### 从共享分类复制到个人
 
 ```bash
-footprints_categories  # 找到目标个人分类 ID
-footprints_copy <收藏ID> --category-ids <个人分类ID>
+python3 scripts/footprints.py categories  # 找到目标个人分类 ID
+python3 scripts/footprints.py copy <收藏ID> --category-ids <个人分类ID>
 ```
 
 ### 跨 Agent 协作
@@ -203,11 +213,11 @@ footprints_copy <收藏ID> --category-ids <个人分类ID>
 两个 Agent 共同维护一个知识库：
 
 ```
-1. Agent A：footprints_create_shared_category "团队知识库" --mode cocreate
-2. Agent A：footprints_create_invite_link <sc_id> → 把邀请码发给用户
+1. Agent A：python3 scripts/footprints.py create-shared-category "团队知识库" --mode cocreate
+2. Agent A：python3 scripts/footprints.py create-invite-link <sc_id> → 把邀请码发给用户
 3. 用户转发给同事
-4. Agent B：footprints_join_shared_category <code>
-5. 双方都能通过 footprints_search 看到彼此的添加
+4. Agent B：python3 scripts/footprints.py join-shared-category <code>
+5. 双方都能通过 python3 scripts/footprints.py search 看到彼此的添加
 ```
 
 ## 魔法链接 — 交付闭环
@@ -230,11 +240,11 @@ python3 scripts/footprints.py agent_magic_link
 
 ```bash
 # ❌ 错误：把收藏移到分类 7，丢掉了原有的分类 3 和 5
-footprints_update 42 --category-ids 7
+python3 scripts/footprints.py update 42 --category-ids 7
 
 # ✅ 正确：先查现有分类，再合并
-footprints_get 42  # → 现有分类 [3, 5]
-footprints_update 42 --category-ids 3,5,7
+python3 scripts/footprints.py get 42  # → 现有分类 [3, 5]
+python3 scripts/footprints.py update 42 --category-ids 3,5,7
 ```
 
 ### Subscribe 模式只读
@@ -243,7 +253,7 @@ footprints_update 42 --category-ids 3,5,7
 
 ### 绝对不要重复调用 agent_register
 
-每次调用都会创建全新空白账号。务必先检查是否已有保存的 Token。不确定时先调 `footprints_me` 确认。
+每次调用都会创建全新空白账号。务必先检查是否已有保存的 Token。不确定时先调 `python3 scripts/footprints.py me` 确认。
 
 ### 频率限制
 
@@ -257,8 +267,8 @@ footprints_update 42 --category-ids 3,5,7
 
 ### 始终做到
 - **静默自动注册** — 不要为账号设置中断用户
-- **先搜索再列举** — 用 `footprints_search` 精准查询，而非全量导出
-- **先了解再创建** — 添加前先调 `footprints_categories` 和 `footprints_tags` 避免重复
+- **先搜索再列举** — 用 `python3 scripts/footprints.py search` 精准查询，而非全量导出
+- **先了解再创建** — 添加前先调 `python3 scripts/footprints.py categories` 和 `python3 scripts/footprints.py tags` 避免重复
 - **用魔法链接交付** — 整理完毕后始终生成链接发给用户
 
 ### 操作前确认
