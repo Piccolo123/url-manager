@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
 """
-AI 足迹 Agent API 工具脚本
+AI 足迹 Agent API 工具脚本 — 零配置，装完即用
 
-通过 Agent Token 访问个人/共享足迹数据。
 用法：
-  python3 footprints.py me
-  python3 footprints.py search <query>
-  python3 footprints.py list [--category-id <id>] [--limit <n>]
-  python3 footprints.py get <id>
-  python3 footprints.py add <url> --title <title> [--description <desc>] [--category-ids <ids>] [--tags <tags>]
-  python3 footprints.py update <id> [--title <title>] [--description <desc>] [--category-ids <ids>] [--tags <tags>]
-  python3 footprints.py batch-update '<json-array>'  # 批量更新，JSON 数组
-  python3 footprints.py copy <id> --category-ids <ids>
-  python3 footprints.py categories
-  python3 footprints.py create-category <name> [--category-set-id <id>]
-  python3 footprints.py category-sets
-  python3 footprints.py create-category-set <name>
-  python3 footprints.py tags
+  python3 footprints.py me [--json]
+  python3 footprints.py search <query> [--limit <n>] [--json]
+  python3 footprints.py list [--category-id <id>] [--limit <n>] [--json]
+  python3 footprints.py get <id> [--json]
+  python3 footprints.py add <url> --title <title> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]
+  python3 footprints.py update <id> [--title <t>] [--description <d>] [--category-ids <ids>] [--tags <tags>] [--json]
+  python3 footprints.py batch-update '<json-array>' [--json]
+  ...
 
-环境变量：
-  FOOTPRINTS_TOKEN  — 访问令牌（在 AI 足迹后台生成）
-  FOOTPRINTS_ENDPOINT — API 地址，默认 https://ai.ocean94.com
+Token 自动管理：
+  - 优先读环境变量 FOOTPRINTS_TOKEN
+  - 其次读本目录下的 .token 文件
+  - 都没有则自动注册，Token 存入 .token，同时设环境变量
+  - 全程无需人工干预
 """
 import os
 import sys
@@ -28,22 +24,59 @@ import json
 import urllib.request
 import urllib.error
 
+# ── 零配置自动引导 ──
+
+BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOKEN_FILE = os.path.join(BASEDIR, ".token")
 ENDPOINT = os.environ.get("FOOTPRINTS_ENDPOINT", "https://ai.ocean94.com")
+
+# 全局开关：是否以 JSON 模式输出
+JSON_MODE = False
 
 
 def _get_token():
-    """读取当前 TOKEN（每次调用时重新读取，支持运行时切换）"""
-    return os.environ.get("FOOTPRINTS_TOKEN", "")
+    """读取 TOKEN：env → .token 文件 → 自动注册并持久化"""
+    token = os.environ.get("FOOTPRINTS_TOKEN", "")
+    if token:
+        return token
+
+    # 尝试从 .token 文件读取
+    try:
+        with open(TOKEN_FILE) as f:
+            token = f.read().strip()
+        if token:
+            os.environ["FOOTPRINTS_TOKEN"] = token
+            return token
+    except FileNotFoundError:
+        pass
+
+    # 自动注册
+    result = _raw_api("/agent/register", method="POST", no_auth=True)
+    if "token" in result:
+        token = result["token"]
+        os.environ["FOOTPRINTS_TOKEN"] = token
+        try:
+            with open(TOKEN_FILE, "w") as f:
+                f.write(token)
+            os.chmod(TOKEN_FILE, 0o600)
+        except Exception:
+            pass
+        if not JSON_MODE:
+            print(f"🔗 自动注册成功，Token 已保存至 {TOKEN_FILE}", file=sys.stderr)
+        return token
+
+    return ""
 
 
-def api(path, method="GET", data=None, no_auth=False):
-    token = _get_token()
+def _raw_api(path, method="GET", data=None, no_auth=False):
+    """底层 HTTP 调用（不依赖 _get_token，避免循环）"""
+    token = os.environ.get("FOOTPRINTS_TOKEN", "")
     url = f"{ENDPOINT.rstrip('/')}/api/v1/agent{path}"
     headers = {"Accept": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
     elif not no_auth:
-        return {"error": "FOOTPRINTS_TOKEN 环境变量未设置 — 请先运行 agent_register"}
+        return {"error": "无法获取 Token — 自动注册失败"}
     body = None
     if data:
         body = json.dumps(data).encode("utf-8")
@@ -61,6 +94,22 @@ def api(path, method="GET", data=None, no_auth=False):
             return {"error": f"HTTP {e.code}: {err_body}"}
     except Exception as e:
         return {"error": f"网络错误: {e}"}
+
+
+def _output(result):
+    """统一输出：JSON 模式打印 JSON，否则只返回数据由各函数自行 print"""
+    if JSON_MODE:
+        print(json.dumps(result, ensure_ascii=False))
+
+
+def api(path, method="GET", data=None, no_auth=False):
+    """API 调用 + token 自动管理"""
+    token = _get_token()
+    if not token and not no_auth:
+        err = {"error": "无法获取 Token — 自动注册失败，请检查网络连接"}
+        _output(err)
+        return err
+    return _raw_api(path, method=method, data=data, no_auth=no_auth)
 
 
 # ── 用户 ──
@@ -287,49 +336,72 @@ def show_help():
 
 
 if __name__ == "__main__":
+    # 第一步：提取 --json 全局开关
+    JSON_MODE = "--json" in sys.argv
+    if JSON_MODE:
+        sys.argv.remove("--json")
+
     if len(sys.argv) < 2:
-        show_help()
+        if JSON_MODE:
+            print(json.dumps({"error": "缺少命令", "usage": "python3 footprints.py <me|search|list|get|add|update|...>"}))
+        else:
+            show_help()
         sys.exit(0)
 
     cmd = sys.argv[1]
 
     import argparse
+
+    # 统一分发：每个分支执行后调用 _output(result) 输出 JSON
     if cmd == "me":
-        me()
+        result = me()
+        _output(result)
     elif cmd == "category-sets":
-        category_sets()
+        result = category_sets()
+        _output(result)
     elif cmd == "create-category-set":
         if len(sys.argv) < 3:
-            print("用法: footprints.py create-category-set <名称>")
+            err = {"error": "用法: footprints.py create-category-set <名称>"}
+            if not JSON_MODE: print(err["error"])
+            _output(err)
             sys.exit(1)
-        create_category_set(sys.argv[2])
+        result = create_category_set(sys.argv[2])
+        _output(result)
     elif cmd == "categories":
-        categories()
+        result = categories()
+        _output(result)
     elif cmd == "create-category":
         parser = argparse.ArgumentParser()
         parser.add_argument("name")
         parser.add_argument("--category-set-id", type=int, default=None)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        create_category(args.name, args.category_set_id)
+        result = create_category(args.name, args.category_set_id)
+        _output(result)
     elif cmd == "tags":
-        tags()
+        result = tags()
+        _output(result)
     elif cmd == "search":
         parser = argparse.ArgumentParser()
         parser.add_argument("query", nargs="+")
         parser.add_argument("--limit", type=int, default=20)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        search(" ".join(args.query), limit=args.limit)
+        result = search(" ".join(args.query), limit=args.limit)
+        _output(result)
     elif cmd == "list":
         parser = argparse.ArgumentParser()
         parser.add_argument("--category-id", type=int, default=None)
         parser.add_argument("--limit", type=int, default=20)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        list_collections(category_id=args.category_id, limit=args.limit)
+        result = list_collections(category_id=args.category_id, limit=args.limit)
+        _output(result)
     elif cmd == "get":
         if len(sys.argv) < 3:
-            print("用法: footprints.py get <足迹ID>")
+            err = {"error": "用法: footprints.py get <足迹ID>"}
+            if not JSON_MODE: print(err["error"])
+            _output(err)
             sys.exit(1)
-        get_collection(sys.argv[2])
+        result = get_collection(sys.argv[2])
+        _output(result)
     elif cmd == "add":
         parser = argparse.ArgumentParser()
         parser.add_argument("url")
@@ -338,7 +410,8 @@ if __name__ == "__main__":
         parser.add_argument("--category-ids", default=None)
         parser.add_argument("--tags", default=None)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        add(args.url, args.title, args.description, args.category_ids, args.tags)
+        result = add(args.url, args.title, args.description, args.category_ids, args.tags)
+        _output(result)
     elif cmd == "update":
         parser = argparse.ArgumentParser()
         parser.add_argument("id")
@@ -347,24 +420,32 @@ if __name__ == "__main__":
         parser.add_argument("--category-ids", default=None)
         parser.add_argument("--tags", default=None)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        update_collection(args.id, args.title, args.description, args.category_ids, args.tags)
+        result = update_collection(args.id, args.title, args.description, args.category_ids, args.tags)
+        _output(result)
     elif cmd == "copy":
         parser = argparse.ArgumentParser()
         parser.add_argument("id")
         parser.add_argument("--category-ids", required=True)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        copy_collection(args.id, args.category_ids)
+        result = copy_collection(args.id, args.category_ids)
+        _output(result)
     elif cmd == "batch-update":
         if len(sys.argv) < 3:
-            print("用法: footprints.py batch-update '<json-array>'")
+            err = {"error": "用法: footprints.py batch-update '<json-array>'"}
+            if not JSON_MODE: print(err["error"])
+            _output(err)
             sys.exit(1)
-        batch_update_collections(sys.argv[2])
+        result = batch_update_collections(sys.argv[2])
+        _output(result)
     elif cmd == "agent_register":
-        agent_register()
+        result = agent_register()
+        _output(result)
     elif cmd == "agent_magic_link":
-        agent_magic_link()
+        result = agent_magic_link()
+        _output(result)
     elif cmd == "shared-categories":
-        shared_categories()
+        result = shared_categories()
+        _output(result)
     elif cmd == "create-shared-category":
         parser = argparse.ArgumentParser()
         parser.add_argument("name")
@@ -372,35 +453,43 @@ if __name__ == "__main__":
         parser.add_argument("--color", default=None)
         parser.add_argument("--description", default=None)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        create_shared_category(args.name, args.mode, args.color, args.description)
+        result = create_shared_category(args.name, args.mode, args.color, args.description)
+        _output(result)
     elif cmd == "join-shared-category":
         if len(sys.argv) < 3:
-            print("用法: footprints.py join-shared-category <邀请码>")
+            err = {"error": "用法: footprints.py join-shared-category <邀请码>"}
+            if not JSON_MODE: print(err["error"])
+            _output(err)
             sys.exit(1)
-        join_shared_category(sys.argv[2])
+        result = join_shared_category(sys.argv[2])
+        _output(result)
     elif cmd == "add-to-shared":
         parser = argparse.ArgumentParser()
         parser.add_argument("sc_id", type=int)
         parser.add_argument("--collection-id", required=True)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        add_to_shared_category(args.sc_id, args.collection_id)
+        result = add_to_shared_category(args.sc_id, args.collection_id)
+        _output(result)
     elif cmd == "remove-from-shared":
         parser = argparse.ArgumentParser()
         parser.add_argument("sc_id", type=int)
         parser.add_argument("--collection-id", required=True)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        remove_from_shared_category(args.sc_id, args.collection_id)
+        result = remove_from_shared_category(args.sc_id, args.collection_id)
+        _output(result)
     elif cmd == "create-invite-link":
         parser = argparse.ArgumentParser()
         parser.add_argument("sc_id", type=int)
         parser.add_argument("--duration-hours", type=int, default=24)
         args, _ = parser.parse_known_args(sys.argv[2:])
-        create_invite_link(args.sc_id, args.duration_hours)
+        result = create_invite_link(args.sc_id, args.duration_hours)
+        _output(result)
     elif cmd in ("help", "-h", "--help"):
         show_help()
     else:
-        print(f"未知命令: {cmd}")
-        show_help()
+        err = {"error": f"未知命令: {cmd}"}
+        if not JSON_MODE: print(err["error"]); show_help()
+        _output(err)
         sys.exit(1)
 
 
