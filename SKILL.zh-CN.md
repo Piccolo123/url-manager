@@ -5,7 +5,7 @@ license: MIT
 compatibility: 需要 Python 3.10+ 和网络访问 https://ai.ocean94.com
 metadata:
   author: Piccolo123
-  version: "2.1.1"
+  version: "2.1.2"
   openclaw:
     emoji: "🔗"
     minGatewayVersion: "2026.6.0"
