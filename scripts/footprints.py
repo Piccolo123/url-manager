@@ -29,23 +29,28 @@ import urllib.request
 import urllib.error
 
 ENDPOINT = os.environ.get("FOOTPRINTS_ENDPOINT", "https://ai.ocean94.com")
-TOKEN = os.environ.get("FOOTPRINTS_TOKEN", "")
-
-if not TOKEN:
-    print("❌ FOOTPRINTS_TOKEN 环境变量未设置", file=sys.stderr)
-    sys.exit(1)
 
 
-def api(path, method="GET", data=None):
+def _get_token():
+    """读取当前 TOKEN（每次调用时重新读取，支持运行时切换）"""
+    return os.environ.get("FOOTPRINTS_TOKEN", "")
+
+
+def api(path, method="GET", data=None, no_auth=False):
+    token = _get_token()
     url = f"{ENDPOINT.rstrip('/')}/api/v1/agent{path}"
-    headers = {"Authorization": f"Bearer {TOKEN}", "Accept": "application/json"}
+    headers = {"Accept": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    elif not no_auth:
+        return {"error": "FOOTPRINTS_TOKEN 环境变量未设置 — 请先运行 agent_register"}
     body = None
     if data:
         body = json.dumps(data).encode("utf-8")
         headers["Content-Type"] = "application/json"
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         err_body = e.read().decode()
@@ -54,6 +59,8 @@ def api(path, method="GET", data=None):
             return {"error": err.get("detail", str(e))}
         except:
             return {"error": f"HTTP {e.code}: {err_body}"}
+    except Exception as e:
+        return {"error": f"网络错误: {e}"}
 
 
 # ── 用户 ──
@@ -134,10 +141,10 @@ def tags():
 
 # ── 足迹 ──
 
-def search(query):
+def search(query, limit=20):
     import urllib.parse
     q = urllib.parse.quote(query)
-    result = api(f"/collections?q={q}&limit=20")
+    result = api(f"/collections?q={q}&limit={limit}")
     if "error" in result:
         print(f"❌ {result['error']}")
         return result
@@ -307,10 +314,11 @@ if __name__ == "__main__":
     elif cmd == "tags":
         tags()
     elif cmd == "search":
-        if len(sys.argv) < 3:
-            print("用法: footprints.py search <关键词>")
-            sys.exit(1)
-        search(" ".join(sys.argv[2:]))
+        parser = argparse.ArgumentParser()
+        parser.add_argument("query", nargs="+")
+        parser.add_argument("--limit", type=int, default=20)
+        args, _ = parser.parse_known_args(sys.argv[2:])
+        search(" ".join(args.query), limit=args.limit)
     elif cmd == "list":
         parser = argparse.ArgumentParser()
         parser.add_argument("--category-id", type=int, default=None)
@@ -486,15 +494,21 @@ def create_invite_link(sc_id, duration_hours=24):
 
 def agent_register():
     """Agent 自主注册：创建新账号并返回访问令牌"""
-    r = api.post("/agent/register")
-    data = r.json()
-    print(f"Token: {data['token']}")
-    print(f"\n{data.get('message', '')}")
+    result = api("/agent/register", method="POST", no_auth=True)
+    if "error" in result:
+        print(f"❌ 注册失败: {result['error']}")
+        return result
+    print(f"Token: {result['token']}")
+    print(f"\n{result.get('message', '')}")
+    return result
 
 
 def agent_magic_link():
     """生成一次性登录链接"""
-    r = api.post("/agent/magic-link")
-    data = r.json()
-    print(f"链接: {data['url']}")
-    print(f"有效期: {data['expires_in']} 秒（{data['expires_in'] // 60} 分钟）")
+    result = api("/agent/magic-link", method="POST")
+    if "error" in result:
+        print(f"❌ 生成链接失败: {result['error']}")
+        return result
+    print(f"链接: {result['url']}")
+    print(f"有效期: {result['expires_in']} 秒（{result['expires_in'] // 60} 分钟）")
+    return result
