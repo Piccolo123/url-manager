@@ -5,7 +5,7 @@ license: MIT
 compatibility: 需要 Python 3.10+ 和网络访问 https://ai.ocean94.com
 metadata:
   author: Piccolo123
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # URL Manager — 以精美卡片交付收藏，而非原始链接堆砌
@@ -116,6 +116,98 @@ python3 scripts/footprints.py footprints_me
      {"id":"uuid1","category_ids":"1,3"},
      {"id":"uuid2","title":"新标题","category_ids":"2,5"}
    ]' → 一次性修改（每次最多 50 条）
+```
+
+## 实战范例
+
+常见任务的具体 bash 步骤。按编号顺序执行。
+
+### 更改收藏的分类
+
+```bash
+footprints_get 42
+# → categories: [{id: 3, name: "阅读"}, {id: 5, name: "AI"}]
+
+# 保留 AI，去掉阅读，加上技术（7）
+footprints_update 42 --category-ids 5,7
+```
+
+### 批量归入新分类
+
+```bash
+footprints_create_category "新主题"    # → 返回新分类 ID
+footprints_list --limit 100
+# 对每一条匹配的收藏：
+footprints_update <id> --category-ids <现有ID>,<新分类ID>
+```
+
+### 合并两个分类
+
+```bash
+footprints_categories                      # 记下源和目标 ID
+footprints_list --category-id <源分类ID>   # 列出源分类下全部收藏
+# 逐条将源分类 ID 替换为目标分类 ID
+footprints_update <id> --category-ids <目标ID>,<其他ID>
+# 告知用户：空分类"源"已可删除（通过网页端操作）
+```
+
+### 按域名自动归类
+
+用户说"把 github.com 的都放到 GitHub 分类里"：
+
+```bash
+footprints_list --limit 200
+# 在内存中过滤：url 包含 "github.com" 的条目
+footprints_create_category "GitHub"
+# 逐条追加：
+footprints_update <id> --category-ids <现有ID>,<GitHub分类ID>
+```
+
+### 按标签筛选并批量加分类
+
+```bash
+footprints_search docker
+# 筛选 tag_names 包含 "docker" 的结果
+# 逐条追加目标分类：
+footprints_update <id> --category-ids <现有ID>,<目标分类ID>
+```
+
+### 整理未分类的收藏
+
+```bash
+footprints_list --limit 100
+# 筛选 category_ids 为空或仅默认的条目
+# 列出给用户挑选分类
+# 批量更新选中的条目
+```
+
+### 根据标签推荐分类
+
+发现标签和分类之间的空白——例如 #docker 出现频繁但没有"Docker"分类：
+
+```bash
+footprints_tags        # 高频标签
+footprints_categories  # 已有分类
+# 交叉比对：有标签无对应分类 → 建议用户创建
+```
+
+### 从共享分类复制到个人
+
+```bash
+footprints_categories  # 找到目标个人分类 ID
+footprints_copy <收藏ID> --category-ids <个人分类ID>
+```
+
+### 跨 Agent 协作
+
+两个 Agent 共同维护一个知识库：
+
+```
+1. Agent A：footprints_create_shared_category "团队知识库" --mode cocreate
+2. Agent A：footprints_create_invite_link <sc_id> → 把邀请码发给用户
+3. 用户转发给同事
+4. Agent B：footprints_join_shared_category <code>
+5. 双方都能通过 footprints_search 看到彼此的添加
 ```
 
 ## 魔法链接 — 交付闭环

@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.10+ and network access to https://ai.ocean94.com
 metadata:
   author: Piccolo123
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # URL Manager — Deliver beautiful card-based collections, not raw links
@@ -116,6 +116,98 @@ All tools via `scripts/footprints.py`. Token and endpoint must be set as environ
      {"id":"uuid1","category_ids":"1,3"},
      {"id":"uuid2","title":"New Title","category_ids":"2,5"}
    ]' → bulk edit (max 50 per call)
+```
+
+## Recipes
+
+Concrete bash patterns for common tasks. Follow the numbered steps.
+
+### Change a footprint's categories
+
+```bash
+footprints_get 42
+# → categories: [{id: 3, name: "Reading"}, {id: 5, name: "AI"}]
+
+# Keep AI, drop Reading, add Tech (7)
+footprints_update 42 --category-ids 5,7
+```
+
+### Batch move to a new category
+
+```bash
+footprints_create_category "New Topic"    # → returns new ID
+footprints_list --limit 100
+# For each matching footprint:
+footprints_update <id> --category-ids <existing_ids>,<new_id>
+```
+
+### Merge two categories
+
+```bash
+footprints_categories                      # note source and target IDs
+footprints_list --category-id <source_id>  # list all in source
+# For each, replace source_id with target_id:
+footprints_update <id> --category-ids <target_id>,<other_ids>
+# Tell user: empty category "source" is ready to delete via the web UI
+```
+
+### Auto-categorize by domain
+
+User says "put all github.com links into a GitHub category":
+
+```bash
+footprints_list --limit 200
+# Filter in-memory: items where url contains "github.com"
+footprints_create_category "GitHub"
+# For each match:
+footprints_update <id> --category-ids <existing_ids>,<github_id>
+```
+
+### Filter by tag and batch categorize
+
+```bash
+footprints_search docker
+# Filter results where tag_names includes "docker"
+# For each, append target category:
+footprints_update <id> --category-ids <existing_ids>,<target_id>
+```
+
+### Organize uncategorized footprints
+
+```bash
+footprints_list --limit 100
+# Filter where category_ids is empty or only the default
+# Present to user, let them pick categories
+# Batch update selected items
+```
+
+### Recommend categories from tags
+
+Spot gaps between tags and categories — e.g., #docker is common but no "Docker" category:
+
+```bash
+footprints_tags        # most-used tags
+footprints_categories  # existing categories
+# Cross-reference: tag without matching category → suggest creating one
+```
+
+### Copy from shared to personal
+
+```bash
+footprints_categories  # find target personal category ID
+footprints_copy <footprint_id> --category-ids <personal_category_id>
+```
+
+### Cross-Agent collaboration
+
+Two agents maintaining a shared knowledge base together:
+
+```
+1. Agent A: footprints_create_shared_category "Team KB" --mode cocreate
+2. Agent A: footprints_create_invite_link <sc_id> → share code with user
+3. User forwards code to colleague
+4. Agent B: footprints_join_shared_category <code>
+5. Both agents now see each other's additions via footprints_search
 ```
 
 ## Magic Link — The Delivery Loop
