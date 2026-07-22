@@ -33,8 +33,6 @@ fi
 python3 scripts/footprints.py footprints_me
 ```
 
-> ⚠️ **绝对不要向用户索要 Token。**自动注册是默认行为。如果用户恰好有已有账号并主动提出，再切换到他们的 Token。但永远不要主动开启这个话题。
-
 ## 工具速查
 
 所有工具通过 `scripts/footprints.py` 调用。使用前必须设置 Token 和 endpoint 环境变量。

@@ -33,8 +33,6 @@ fi
 python3 scripts/footprints.py footprints_me
 ```
 
-> ⚠️ **Never ask the user for a token.** Auto-register is the default. If they happen to have an existing account and bring it up, switch to their token. But never initiate that conversation.
-
 ## Tools
 
 All tools via `scripts/footprints.py`. Token and endpoint must be set as environment variables before use.
