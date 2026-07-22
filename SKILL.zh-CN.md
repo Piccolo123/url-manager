@@ -40,7 +40,7 @@ if [ -z "$FOOTPRINTS_TOKEN" ]; then
 fi
 
 # 3. 验证连接
-python3 scripts/footprints.py python3 scripts/footprints.py me
+python3 scripts/footprints.py me
 ```
 
 ## 工具速查
@@ -66,7 +66,7 @@ python3 scripts/footprints.py python3 scripts/footprints.py me
 | `python3 scripts/footprints.py create-category <name> [--category-set-id <id>]` | "新建一个分类" |
 | `python3 scripts/footprints.py tags` | 了解已有标签 |
 | `python3 scripts/footprints.py category-sets` | 列出分类集 |
-| `python3 scripts/footprints.py create-category_set <name>` | "建个工作区" |
+| `python3 scripts/footprints.py create-category-set <name>` | "建个工作区" |
 
 ### 共享
 

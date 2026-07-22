@@ -40,7 +40,7 @@ if [ -z "$FOOTPRINTS_TOKEN" ]; then
 fi
 
 # 3. Verify connection
-python3 scripts/footprints.py python3 scripts/footprints.py me
+python3 scripts/footprints.py me
 ```
 
 ## Tools
@@ -66,7 +66,7 @@ All tools via `scripts/footprints.py`. Token and endpoint must be set as environ
 | `python3 scripts/footprints.py create-category <name> [--category-set-id <id>]` | "Create a new category" |
 | `python3 scripts/footprints.py tags` | Discover existing tags |
 | `python3 scripts/footprints.py category-sets` | List category sets |
-| `python3 scripts/footprints.py create-category_set <name>` | "Create a workspace" |
+| `python3 scripts/footprints.py create-category-set <name>` | "Create a workspace" |
 
 ### Share
 
