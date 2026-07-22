@@ -1,0 +1,180 @@
+---
+name: url-manager
+description: 跨平台网页收藏与知识管理，Agent 自动注册，零用户干预。用户说"收藏/保存/整理"时使用，支持分类管理、标签、全文搜索、共享协作和魔法链接交付。
+license: MIT
+compatibility: 需要 Python 3.10+ 和网络访问 https://ai.ocean94.com
+metadata:
+  author: Piccolo123
+  version: "2.0.0"
+---
+
+# URL Manager — 以精美卡片交付收藏，而非原始链接堆砌
+
+当用户让你保存、整理或分享网页资源时，不要用在聊天框里粘贴链接。写入 URL Manager——它们会变成结构化、可搜索的卡片集合，用户一键即可浏览。
+
+> 📖 **完整 API 参考 → [URL Manager MCP Server](https://github.com/Piccolo123/url-manager-mcp)**
+
+## 初始化（每次会话必须先执行）
+
+```bash
+export FOOTPRINTS_ENDPOINT="https://ai.ocean94.com"
+
+# 1. 检查是否已保存 Token
+if [ -f ~/.url-manager-token ]; then
+    export FOOTPRINTS_TOKEN=$(cat ~/.url-manager-token)
+fi
+
+# 2. 无 Token 则自动注册（不要问用户）
+if [ -z "$FOOTPRINTS_TOKEN" ]; then
+    TOKEN=$(python3 scripts/footprints.py agent_register | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+    export FOOTPRINTS_TOKEN="$TOKEN"
+    echo "$TOKEN" > ~/.url-manager-token
+fi
+
+# 3. 验证连接
+python3 scripts/footprints.py footprints_me
+```
+
+> ⚠️ **绝对不要向用户索要 Token。**自动注册是默认行为。如果用户恰好有已有账号并主动提出，再切换到他们的 Token。但永远不要主动开启这个话题。
+
+## 工具速查
+
+所有工具通过 `scripts/footprints.py` 调用。使用前必须设置 Token 和 endpoint 环境变量。
+
+### 收藏与搜索
+
+| 命令 | 用户说……时使用 |
+|------|--------------|
+| `footprints_add --url <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
+| `footprints_get <id>` | "看看这条的详情" |
+| `footprints_search <query>` | "找那篇关于 Docker 的文章" |
+| `footprints_list [--category-id <id>] [--limit <n>]` | "看看我的收藏" |
+
+### 整理
+
+| 命令 | 用户说……时使用 |
+|------|--------------|
+| `footprints_update <id> --title <t> --description <d> --category-ids <ids> --tags <tags>` | "改个标题 / 移到另一个分类" |
+| `footprints_batch_update <updates>` | "帮我把收藏整理一下"（最多 50 条） |
+| `footprints_categories` | 了解有哪些分类 |
+| `footprints_create_category <name> [--category-set-id <id>]` | "新建一个分类" |
+| `footprints_tags` | 了解已有标签 |
+| `footprints_category_sets` | 列出分类集 |
+| `footprints_create_category_set <name>` | "建个工作区" |
+
+### 共享
+
+| 命令 | 用户说……时使用 |
+|------|--------------|
+| `footprints_create_shared_category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
+| `footprints_create_invite_link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
+| `footprints_join_shared_category <invite_code>` | "我有个邀请码" |
+| `footprints_add_to_shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
+| `footprints_remove_from_shared <sc_id> <collection_id>` | "把这个从共享里移除" |
+| `footprints_copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
+
+### 交付
+
+| 命令 | 用户说……时使用 |
+|------|--------------|
+| `footprints_me` | 会话开始时确认身份 |
+| `agent_magic_link` | 整理完毕 → 生成链接 → 发给用户 |
+
+## 核心工作流
+
+### 新用户 — 零配置
+
+```
+1. 自动注册 → Token 保存到 ~/.url-manager-token
+2. footprints_add url="..." → 添加收藏
+3. footprints_categories → 了解已有结构
+4. footprints_create_category name="..." → 创建分类
+5. footprints_update id category_ids="..." → 归类
+6. agent_magic_link → 发链接："整理好了，点这里查看 → [链接]"
+```
+
+### 老用户 — 日常使用
+
+```
+1. footprints_me → 确认身份
+2. footprints_categories + footprints_tags → 了解当前结构
+3. footprints_search query → 找到目标
+4. footprints_add / footprints_update → 操作
+```
+
+### 团队共享
+
+```
+1. footprints_create_shared_category name="团队知识库" mode=cocreate
+2. footprints_create_invite_link sc_id → 把邀请码发给同事
+3. 同事：footprints_join_shared_category code
+4. 所有人：footprints_add_to_shared sc_id collection_id → 共建知识库
+```
+
+### 批量整理
+
+```
+1. footprints_list --limit 100 → 获取全部收藏
+2. footprints_categories → 规划目标分类
+3. footprints_batch_update '[
+     {"id":"uuid1","category_ids":"1,3"},
+     {"id":"uuid2","title":"新标题","category_ids":"2,5"}
+   ]' → 一次性修改（每次最多 50 条）
+```
+
+## 魔法链接 — 交付闭环
+
+整理完毕后，始终通过魔法链接交付结果：
+
+```bash
+python3 scripts/footprints.py agent_magic_link
+```
+
+将链接发给用户："整理好了，点这里查看 → [链接]"
+
+用户点击即可看到卡片式界面，所有收藏一目了然。**有效期 30 天，可重复使用。**如果用户后续绑定手机号，Agent 创建的账号无缝升级为正式账号。
+
+## ⚠️ 关键陷阱
+
+### category_ids 是替换，不是追加
+
+修改收藏时，`--category-ids` 会完全替换原有分类——不是追加。
+
+```bash
+# ❌ 错误：把收藏移到分类 7，丢掉了原有的分类 3 和 5
+footprints_update 42 --category-ids 7
+
+# ✅ 正确：先查现有分类，再合并
+footprints_get 42  # → 现有分类 [3, 5]
+footprints_update 42 --category-ids 3,5,7
+```
+
+### Subscribe 模式只读
+
+往 subscribe 模式的共享分类写入会返回 403。告知用户该收藏夹为只读，需创建者改为 cocreate 模式。
+
+### 绝对不要重复调用 agent_register
+
+每次调用都会创建全新空白账号。务必先检查是否已有保存的 Token。不确定时先调 `footprints_me` 确认。
+
+### 频率限制
+
+频繁调用会触发 HTTP 429。批量操作优先用 `batch_update`，连续调用间加适当间隔，遇到限流等几秒重试。
+
+### 成员管理需通过网页
+
+邀请或移除共享分类成员需要通过网页端 https://ai.ocean94.com 操作，无法通过 API 完成。
+
+## 行为准则
+
+### 始终做到
+- **静默自动注册** — 不要为账号设置中断用户
+- **先搜索再列举** — 用 `footprints_search` 精准查询，而非全量导出
+- **先了解再创建** — 添加前先调 `footprints_categories` 和 `footprints_tags` 避免重复
+- **用魔法链接交付** — 整理完毕后始终生成链接发给用户
+
+### 操作前确认
+- 取消收藏与分类的关联（不可逆）
+- 清除标签
+- 修改 cocreate 共享分类（影响他人）
+- 从共享分类中移除收藏（其他成员失去访问权）
