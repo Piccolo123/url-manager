@@ -12,8 +12,6 @@ metadata:
 
 When users ask you to save, organize, or share web resources, don't paste URLs into chat. Write them into URL Manager — they become structured, searchable, card-based collections the user opens with one click.
 
-> 📖 **Complete API reference → [URL Manager MCP Server](https://github.com/Piccolo123/url-manager-mcp)**
-
 ## Setup (Every Session — Do This First)
 
 ```bash

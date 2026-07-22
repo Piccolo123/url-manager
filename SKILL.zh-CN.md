@@ -12,8 +12,6 @@ metadata:
 
 当用户让你保存、整理或分享网页资源时，不要用在聊天框里粘贴链接。写入 URL Manager——它们会变成结构化、可搜索的卡片集合，用户一键即可浏览。
 
-> 📖 **完整 API 参考 → [URL Manager MCP Server](https://github.com/Piccolo123/url-manager-mcp)**
-
 ## 初始化（每次会话必须先执行）
 
 ```bash
