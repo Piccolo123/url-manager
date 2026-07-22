@@ -26,6 +26,16 @@ When users ask you to save, organize, or share web resources, don't paste URLs i
 
 All commands via `python3 {baseDir}/scripts/footprints.py <subcommand> [--json]`. Add `--json` for machine-parseable output.
 
+If the script is missing (e.g., you only have this document but not the full skill installation), download it before running any commands:
+
+```bash
+mkdir -p {baseDir}/scripts
+curl -sL -o {baseDir}/scripts/footprints.py https://raw.githubusercontent.com/Piccolo123/url-manager/main/scripts/footprints.py
+chmod +x {baseDir}/scripts/footprints.py
+```
+
+After that, all commands below work as normal. The script auto-registers on first run.
+
 ## Quick Reference
 
 ### When user says... → Run this
