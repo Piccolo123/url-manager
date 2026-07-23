@@ -51,7 +51,7 @@ def _get_token():
         pass
 
     # 自动注册
-    result = _raw_api("/agent/register", method="POST", no_auth=True)
+    result = _raw_api("/register", method="POST", no_auth=True)
     if "token" in result:
         token = result["token"]
         os.environ["FOOTPRINTS_TOKEN"] = token
@@ -102,6 +102,12 @@ def _output(result):
         print(json.dumps(result, ensure_ascii=False))
 
 
+def _echo(*args, **kwargs):
+    """只在非 JSON 模式下打印（人类可读输出）"""
+    if not JSON_MODE:
+        print(*args, **kwargs)
+
+
 def api(path, method="GET", data=None, no_auth=False):
     """API 调用 + token 自动管理"""
     token = _get_token()
@@ -119,8 +125,8 @@ def me():
     if "error" in result:
         print(f"❌ {result['error']}")
         return result
-    print(f"用户名: {result.get('username')}")
-    print(f"昵称: {result.get('nickname', '')}")
+    _echo(f"用户名: {result.get('username')}")
+    _echo(f"昵称: {result.get('nickname', '')}")
     return result
 
 
@@ -133,7 +139,7 @@ def category_sets():
         return result
     for s in result:
         tag = "🔗" if s.get("is_shared") else "📁"
-        print(f"  {tag} [{s['id']}] {s['name']}")
+        _echo(f"  {tag} [{s['id']}] {s['name']}")
     return result
 
 
@@ -142,7 +148,7 @@ def create_category_set(name):
     if "error" in result:
         print(f"❌ {result['error']}")
         return result
-    print(f"✅ 分类集已创建: [{result['id']}] {result['name']}")
+    _echo(f"✅ 分类集已创建: [{result['id']}] {result['name']}")
     return result
 
 
@@ -159,7 +165,7 @@ def categories():
             mode_tag = " [共创]"
         elif cat.get("mode") == "subscribe":
             mode_tag = " [订阅]"
-        print(f"  [{cat['id']}] {cat['name']}{mode_tag}")
+        _echo(f"  [{cat['id']}] {cat['name']}{mode_tag}")
     return result
 
 
@@ -172,7 +178,7 @@ def create_category(name, category_set_id=None):
         print(f"❌ {result['error']}")
         return result
     verb = "已创建" if result.get("created") else "已存在"
-    print(f"✅ {verb}: [{result['id']}] {result['name']}")
+    _echo(f"✅ {verb}: [{result['id']}] {result['name']}")
     return result
 
 
@@ -184,7 +190,7 @@ def tags():
         print(f"❌ {result['error']}")
         return result
     for tag in result:
-        print(f"  [{tag['id']}] {tag['name']}")
+        _echo(f"  [{tag['id']}] {tag['name']}")
     return result
 
 
@@ -199,20 +205,20 @@ def search(query, limit=20):
         return result
     items = result.get("items", [])
     if not items:
-        print("未找到匹配的足迹")
+        _echo("未找到匹配的足迹")
         return result
     for i, item in enumerate(items):
-        print(f"{i+1}. {item['title']}")
-        print(f"   {item['url']}")
+        _echo(f"{i+1}. {item['title']}")
+        _echo(f"   {item['url']}")
         if item.get("description"):
-            print(f"   {item['description'][:120]}")
+            _echo(f"   {item['description'][:120]}")
         cats = ", ".join(item.get("category_names", []))
         if cats:
-            print(f"   分类: {cats}")
+            _echo(f"   分类: {cats}")
         tags_list = ", ".join(item.get("tags", []))
         if tags_list:
-            print(f"   标签: {tags_list}")
-        print()
+            _echo(f"   标签: {tags_list}")
+        _echo()
     return result
 
 
@@ -226,15 +232,15 @@ def list_collections(category_id=None, limit=20):
         return result
     items = result.get("items", [])
     if not items:
-        print("暂无足迹")
+        _echo("暂无足迹")
         return result
     for i, item in enumerate(items):
-        print(f"{i+1}. {item['title']}")
-        print(f"   {item['url']}")
+        _echo(f"{i+1}. {item['title']}")
+        _echo(f"   {item['url']}")
         cats = ", ".join(item.get("category_names", []))
         if cats:
-            print(f"   分类: {cats}")
-        print()
+            _echo(f"   分类: {cats}")
+        _echo()
     return result
 
 
@@ -244,16 +250,16 @@ def get_collection(collection_id):
     if "error" in result:
         print(f"❌ {result['error']}")
         return result
-    print(f"标题: {result.get('title')}")
-    print(f"链接: {result.get('url')}")
+    _echo(f"标题: {result.get('title')}")
+    _echo(f"链接: {result.get('url')}")
     if result.get("description"):
-        print(f"摘要: {result['description'][:200]}")
+        _echo(f"摘要: {result['description'][:200]}")
     cats = ", ".join(result.get("category_names", []))
     if cats:
-        print(f"分类: {cats}")
+        _echo(f"分类: {cats}")
     tags_list = ", ".join(result.get("tags", []))
     if tags_list:
-        print(f"标签: {tags_list}")
+        _echo(f"标签: {tags_list}")
     return result
 
 
@@ -271,10 +277,10 @@ def add(url, title=None, description=None, category_ids=None, tags=None):
     if "error" in result:
         print(f"❌ {result['error']}")
     else:
-        print(f"✅ 已保存: {result.get('title', url)}")
+        _echo(f"✅ 已保存: {result.get('title', url)}")
         cats = ", ".join(result.get("category_names", []))
         if cats:
-            print(f"   分类: {cats}")
+            _echo(f"   分类: {cats}")
     return result
 
 
@@ -293,7 +299,7 @@ def update_collection(collection_id, title=None, description=None, category_ids=
     if "error" in result:
         print(f"❌ {result['error']}")
     else:
-        print(f"✅ 已更新: {result.get('title', collection_id)}")
+        _echo(f"✅ 已更新: {result.get('title', collection_id)}")
     return result
 
 
@@ -304,10 +310,10 @@ def copy_collection(collection_id, category_ids):
     if "error" in result:
         print(f"❌ {result['error']}")
     else:
-        print(f"✅ 已复制到个人分类: {result.get('title', collection_id)}")
+        _echo(f"✅ 已复制到个人分类: {result.get('title', collection_id)}")
         cats = ", ".join(result.get("category_names", []))
         if cats:
-            print(f"   分类: {cats}")
+            _echo(f"   分类: {cats}")
     return result
 
 
@@ -332,7 +338,118 @@ def batch_update_collections(updates_json):
 
 
 def show_help():
-    print(__doc__)
+    _echo(__doc__)
+
+
+
+# ── 共享分类 ──
+
+def shared_categories():
+    """列出共享分类（通过分类接口过滤 mode != null 的条目）"""
+    result = api("/categories")
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    shared = [c for c in result if c.get("mode")]
+    if not shared:
+        _echo("暂无共享分类")
+        return result
+    for c in shared:
+        mode_tag = "[共创]" if c.get("mode") == "cocreate" else "[订阅]"
+        _echo(f"  [{c['id']}] {c['name']} {mode_tag}")
+    return shared
+
+
+def create_shared_category(name, mode, color=None, description=None):
+    """创建共享分类"""
+    data = {"name": name, "mode": mode}
+    if color:
+        data["color"] = color
+    if description:
+        data["description"] = description
+    result = api("/shared-categories", method="POST", data=data)
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    _echo(f"✅ 共享分类已创建: [{result['id']}] {result['name']}")
+    if result.get("invite_code"):
+        _echo(f"   邀请码: {result['invite_code']}")
+    if result.get("mode"):
+        _echo(f"   模式: {result['mode']}")
+    return result
+
+
+def join_shared_category(code):
+    """通过邀请码加入共享分类"""
+    result = api("/shared-categories/join", method="POST", data={"code": code})
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    _echo(f"✅ 已加入共享分类")
+    return result
+
+
+def add_to_shared_category(sc_id, collection_id):
+    """将足迹加入共享分类"""
+    result = api(f"/shared-categories/{sc_id}/collections", method="POST",
+                 data={"collection_id": str(collection_id)})
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    _echo(f"✅ 足迹已加入共享分类 [{sc_id}]")
+    return result
+
+
+def remove_from_shared_category(sc_id, collection_id):
+    """将足迹移出共享分类"""
+    result = api(f"/shared-categories/{sc_id}/collections/{collection_id}",
+                 method="DELETE")
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    _echo(f"✅ 足迹已移出共享分类 [{sc_id}]")
+    return result
+
+
+def create_invite_link(sc_id, duration_hours=24):
+    """为共享分类生成邀请链接，可发给人类或其他 Agent"""
+    data = {}
+    if duration_hours is not None:
+        data["duration_hours"] = duration_hours
+    result = api(f"/shared-categories/{sc_id}/invite-link", method="POST", data=data)
+    if "error" in result:
+        print(f"❌ {result['error']}")
+        return result
+    _echo(f"✅ 邀请链接已生成:")
+    _echo(f"   URL: {result.get('url')}")
+    if result.get("code"):
+        _echo(f"   邀请码: {result['code']}")
+    if result.get("expires_at"):
+        _echo(f"   有效期至: {result['expires_at']}")
+    _echo(f"\n📨 可将链接或邀请码发送给人类或其他 Agent，对方加入后即可协作")
+    return result
+
+
+def agent_register():
+    """Agent 自主注册：创建新账号并返回访问令牌"""
+    result = api("/register", method="POST", no_auth=True)
+    if "error" in result:
+        print(f"❌ 注册失败: {result['error']}")
+        return result
+    _echo(f"Token: {result['token']}")
+    _echo(f"\n{result.get('message', '')}")
+    return result
+
+
+def agent_magic_link():
+    """生成一次性登录链接"""
+    result = api("/magic-link", method="POST")
+    if "error" in result:
+        print(f"❌ 生成链接失败: {result['error']}")
+        return result
+    _echo(f"链接: {result['url']}")
+    _echo(f"有效期: {result['expires_in']} 秒（{result['expires_in'] // 60} 分钟）")
+    return result
 
 
 if __name__ == "__main__":
@@ -404,7 +521,7 @@ if __name__ == "__main__":
         _output(result)
     elif cmd == "add":
         parser = argparse.ArgumentParser()
-        parser.add_argument("url")
+        parser.add_argument("url", help="URL to save")
         parser.add_argument("--title", default=None)
         parser.add_argument("--description", default=None)
         parser.add_argument("--category-ids", default=None)
@@ -491,113 +608,3 @@ if __name__ == "__main__":
         if not JSON_MODE: print(err["error"]); show_help()
         _output(err)
         sys.exit(1)
-
-
-# ── 共享分类 ──
-
-def shared_categories():
-    """列出共享分类（通过分类接口过滤 mode != null 的条目）"""
-    result = api("/categories")
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    shared = [c for c in result if c.get("mode")]
-    if not shared:
-        print("暂无共享分类")
-        return result
-    for c in shared:
-        mode_tag = "[共创]" if c.get("mode") == "cocreate" else "[订阅]"
-        print(f"  [{c['id']}] {c['name']} {mode_tag}")
-    return shared
-
-
-def create_shared_category(name, mode, color=None, description=None):
-    """创建共享分类"""
-    data = {"name": name, "mode": mode}
-    if color:
-        data["color"] = color
-    if description:
-        data["description"] = description
-    result = api("/shared-categories", method="POST", data=data)
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    print(f"✅ 共享分类已创建: [{result['id']}] {result['name']}")
-    if result.get("invite_code"):
-        print(f"   邀请码: {result['invite_code']}")
-    if result.get("mode"):
-        print(f"   模式: {result['mode']}")
-    return result
-
-
-def join_shared_category(code):
-    """通过邀请码加入共享分类"""
-    result = api("/shared-categories/join", method="POST", data={"code": code})
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    print(f"✅ 已加入共享分类")
-    return result
-
-
-def add_to_shared_category(sc_id, collection_id):
-    """将足迹加入共享分类"""
-    result = api(f"/shared-categories/{sc_id}/collections", method="POST",
-                 data={"collection_id": str(collection_id)})
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    print(f"✅ 足迹已加入共享分类 [{sc_id}]")
-    return result
-
-
-def remove_from_shared_category(sc_id, collection_id):
-    """将足迹移出共享分类"""
-    result = api(f"/shared-categories/{sc_id}/collections/{collection_id}",
-                 method="DELETE")
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    print(f"✅ 足迹已移出共享分类 [{sc_id}]")
-    return result
-
-
-def create_invite_link(sc_id, duration_hours=24):
-    """为共享分类生成邀请链接，可发给人类或其他 Agent"""
-    data = {}
-    if duration_hours is not None:
-        data["duration_hours"] = duration_hours
-    result = api(f"/shared-categories/{sc_id}/invite-link", method="POST", data=data)
-    if "error" in result:
-        print(f"❌ {result['error']}")
-        return result
-    print(f"✅ 邀请链接已生成:")
-    print(f"   URL: {result.get('url')}")
-    if result.get("code"):
-        print(f"   邀请码: {result['code']}")
-    if result.get("expires_at"):
-        print(f"   有效期至: {result['expires_at']}")
-    print(f"\n📨 可将链接或邀请码发送给人类或其他 Agent，对方加入后即可协作")
-    return result
-
-
-def agent_register():
-    """Agent 自主注册：创建新账号并返回访问令牌"""
-    result = api("/agent/register", method="POST", no_auth=True)
-    if "error" in result:
-        print(f"❌ 注册失败: {result['error']}")
-        return result
-    print(f"Token: {result['token']}")
-    print(f"\n{result.get('message', '')}")
-    return result
-
-
-def agent_magic_link():
-    """生成一次性登录链接"""
-    result = api("/agent/magic-link", method="POST")
-    if "error" in result:
-        print(f"❌ 生成链接失败: {result['error']}")
-        return result
-    print(f"链接: {result['url']}")
-    print(f"有效期: {result['expires_in']} 秒（{result['expires_in'] // 60} 分钟）")
-    return result

@@ -40,7 +40,7 @@ rm -rf /tmp/um
 
 | 用户说 | 命令 |
 |--------|------|
-| "收藏/保存这个链接" | `python3 {baseDir}/scripts/footprints.py add --url <url> --title <文本> [--category-ids <ids>] [--json]` |
+| "收藏/保存这个链接" | `python3 {baseDir}/scripts/footprints.py add <url> --title <文本> [--category-ids <ids>] [--json]` |
 | "找那篇关于XX的文章" | `python3 {baseDir}/scripts/footprints.py search <关键词> [--limit <n>] [--json]` |
 | "看看我的收藏" | `python3 {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "看看这条详情" | `python3 {baseDir}/scripts/footprints.py get <id> [--json]` |
@@ -62,7 +62,7 @@ rm -rf /tmp/um
 
 | 命令 | 用户说……时使用 |
 |------|--------------|
-| `python3 {baseDir}/scripts/footprints.py add --url <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
+| `python3 {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
 | `python3 {baseDir}/scripts/footprints.py get <id>` | "看看这条的详情" |
 | `python3 {baseDir}/scripts/footprints.py search <query>` | "找那篇关于 Docker 的文章" |
 | `python3 {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | "看看我的收藏" |
@@ -86,7 +86,7 @@ rm -rf /tmp/um
 | `python3 {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
 | `python3 {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
 | `python3 {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "我有个邀请码" |
-| `python3 {baseDir}/scripts/footprints.py add_to_shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
+| `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
 | `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "把这个从共享里移除" |
 | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
 
@@ -102,7 +102,7 @@ rm -rf /tmp/um
 ### 新用户 — 零配置
 
 ```
-1. 自动注册 → Token 保存到 ~/.url-manager-token
+1. 自动注册 → Token 保存到 {baseDir}/.token
 2. python3 {baseDir}/scripts/footprints.py add url="..." → 添加收藏
 3. python3 {baseDir}/scripts/footprints.py categories → 了解已有结构
 4. python3 {baseDir}/scripts/footprints.py create-category name="..." → 创建分类
@@ -125,7 +125,7 @@ rm -rf /tmp/um
 1. python3 {baseDir}/scripts/footprints.py create-shared-category name="团队知识库" mode=cocreate
 2. python3 {baseDir}/scripts/footprints.py create-invite-link sc_id → 把邀请码发给同事
 3. 同事：python3 {baseDir}/scripts/footprints.py join-shared-category code
-4. 所有人：python3 {baseDir}/scripts/footprints.py add_to_shared sc_id collection_id → 共建知识库
+4. 所有人：python3 {baseDir}/scripts/footprints.py add-to-shared sc_id collection_id → 共建知识库
 ```
 
 ### 批量整理

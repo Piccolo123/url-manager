@@ -40,7 +40,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 
 | User says | Command |
 |-----------|---------|
-| "Save/bookmark/collect this link" | `python3 {baseDir}/scripts/footprints.py add --url <url> --title <text> [--category-ids <ids>] [--json]` |
+| "Save/bookmark/collect this link" | `python3 {baseDir}/scripts/footprints.py add <url> --title <text> [--category-ids <ids>] [--json]` |
 | "Find that article about X" | `python3 {baseDir}/scripts/footprints.py search <query> [--limit <n>] [--json]` |
 | "Show me my bookmarks" | `python3 {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "Show me details" | `python3 {baseDir}/scripts/footprints.py get <id> [--json]` |
@@ -62,7 +62,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 
 | Command | Use when user says... |
 |---------|----------------------|
-| `python3 {baseDir}/scripts/footprints.py add --url <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "Save/bookmark/collect this link" |
+| `python3 {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "Save/bookmark/collect this link" |
 | `python3 {baseDir}/scripts/footprints.py get <id>` | "Show me details of that bookmark" |
 | `python3 {baseDir}/scripts/footprints.py search <query>` | "Find that article about Docker" |
 | `python3 {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | "Show me my bookmarks" |
@@ -86,7 +86,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 | `python3 {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "Create a shared collection" |
 | `python3 {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "Send invite link to my team" |
 | `python3 {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "I have an invite code" |
-| `python3 {baseDir}/scripts/footprints.py add_to_shared <sc_id> <collection_id>` | "Add this to team collection" |
+| `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> <collection_id>` | "Add this to team collection" |
 | `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "Remove this from shared" |
 | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "Save that shared bookmark to my own" |
 
@@ -102,7 +102,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 ### New User — Zero Setup
 
 ```
-1. Token check → auto-register (save to ~/.url-manager-token)
+1. Token check → auto-register (save to {baseDir}/.token)
 2. python3 {baseDir}/scripts/footprints.py add url="..." → save bookmarks
 3. python3 {baseDir}/scripts/footprints.py categories → discover structure
 4. python3 {baseDir}/scripts/footprints.py create-category name="..." → create categories
@@ -125,7 +125,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 1. python3 {baseDir}/scripts/footprints.py create-shared-category name="Team KB" mode=cocreate
 2. python3 {baseDir}/scripts/footprints.py create-invite-link sc_id → share code with team
 3. Teammates: python3 {baseDir}/scripts/footprints.py join-shared-category code
-4. Everyone: python3 {baseDir}/scripts/footprints.py add_to_shared sc_id collection_id → build together
+4. Everyone: python3 {baseDir}/scripts/footprints.py add-to-shared sc_id collection_id → build together
 ```
 
 ### Batch Reorganization
