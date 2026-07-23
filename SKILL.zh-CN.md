@@ -88,7 +88,7 @@ rm -rf /tmp/um
 | `python3 {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
 | `python3 {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "我有个邀请码" |
 | `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | "把这个加到团队收藏里" |
-| `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "把这个从共享里移除" |
+| `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | "把这个从共享里移除" |
 | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
 
 ### 交付

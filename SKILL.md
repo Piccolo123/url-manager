@@ -88,7 +88,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 | `python3 {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "Send invite link to my team" |
 | `python3 {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "I have an invite code" |
 | `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | "Add this to team collection" |
-| `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "Remove this from shared" |
+| `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | "Remove this from shared" |
 | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "Save that shared bookmark to my own" |
 
 ### Deliver

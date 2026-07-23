@@ -19,8 +19,8 @@ AI 足迹 Agent API 工具脚本 — 零配置，装完即用
   python3 footprints.py shared-categories [--json]
   python3 footprints.py create-shared-category <name> <mode> [--color <hex>] [--json]
   python3 footprints.py join-shared-category <code> [--json]
-  python3 footprints.py add-to-shared-category <sc_id> --collection-id <id> [--json]
-  python3 footprints.py remove-from-shared-category <sc_id> --collection-id <id> [--json]
+  python3 footprints.py add-to-shared <sc_id> --collection-id <id> [--json]
+  python3 footprints.py remove-from-shared <sc_id> --collection-id <id> [--json]
   python3 footprints.py create-invite-link <sc_id> [--duration-hours <h>] [--json]
   python3 footprints.py agent_register [--json]
   python3 footprints.py agent_magic_link [--json]
@@ -136,7 +136,7 @@ def api(path, method="GET", data=None, no_auth=False):
 def me():
     result = api("/me")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"用户名: {result.get('username')}")
     _echo(f"昵称: {result.get('nickname', '')}")
@@ -148,7 +148,7 @@ def me():
 def category_sets():
     result = api("/category-sets")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     for s in result:
         tag = "🔗" if s.get("is_shared") else "📁"
@@ -159,7 +159,7 @@ def category_sets():
 def create_category_set(name):
     result = api("/category-sets", method="POST", data={"name": name})
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 分类集已创建: [{result['id']}] {result['name']}")
     return result
@@ -170,7 +170,7 @@ def create_category_set(name):
 def categories():
     result = api("/categories")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     for cat in result:
         mode_tag = ""
@@ -188,7 +188,7 @@ def create_category(name, category_set_id=None):
         body["category_set_id"] = category_set_id
     result = api("/categories", method="POST", data=body)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     verb = "已创建" if result.get("created") else "已存在"
     _echo(f"✅ {verb}: [{result['id']}] {result['name']}")
@@ -200,7 +200,7 @@ def create_category(name, category_set_id=None):
 def tags():
     result = api("/tags")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     for tag in result:
         _echo(f"  [{tag['id']}] {tag['name']}")
@@ -214,7 +214,7 @@ def search(query, limit=20):
     q = urllib.parse.quote(query)
     result = api(f"/collections?q={q}&limit={limit}")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     items = result.get("items", [])
     if not items:
@@ -241,7 +241,7 @@ def list_collections(category_id=None, limit=20):
         path += f"&category_id={category_id}"
     result = api(path)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     items = result.get("items", [])
     if not items:
@@ -261,7 +261,7 @@ def get_collection(collection_id):
     """获取单条足迹详情"""
     result = api(f"/collections/{collection_id}")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"标题: {result.get('title')}")
     _echo(f"链接: {result.get('url')}")
@@ -288,7 +288,7 @@ def add(url, title=None, description=None, category_ids=None, tags=None):
         data["tag_names"] = [t.strip() for t in tags.split(",")]
     result = api("/collections", method="POST", data=data)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
     else:
         _echo(f"✅ 已保存: {result.get('title', url)}")
         cats = ", ".join(result.get("category_names", []))
@@ -310,7 +310,7 @@ def update_collection(collection_id, title=None, description=None, category_ids=
         data["tag_names"] = [t.strip() for t in tags.split(",") if t.strip()]
     result = api(f"/collections/{collection_id}", method="PUT", data=data)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
     else:
         _echo(f"✅ 已更新: {result.get('title', collection_id)}")
     return result
@@ -321,7 +321,7 @@ def copy_collection(collection_id, category_ids):
     data = {"category_ids": [int(x) for x in category_ids.split(",")]}
     result = api(f"/collections/{collection_id}/copy", method="POST", data=data)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
     else:
         _echo(f"✅ 已复制到个人分类: {result.get('title', collection_id)}")
         cats = ", ".join(result.get("category_names", []))
@@ -361,7 +361,7 @@ def shared_categories():
     """列出共享分类（通过分类接口过滤 mode != null 的条目）"""
     result = api("/categories")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     shared = [c for c in result if c.get("mode")]
     if not shared:
@@ -382,7 +382,7 @@ def create_shared_category(name, mode, color=None, description=None):
         data["description"] = description
     result = api("/shared-categories", method="POST", data=data)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 共享分类已创建: [{result['id']}] {result['name']}")
     if result.get("invite_code"):
@@ -396,7 +396,7 @@ def join_shared_category(code):
     """通过邀请码加入共享分类"""
     result = api("/shared-categories/join", method="POST", data={"code": code})
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 已加入共享分类")
     return result
@@ -407,7 +407,7 @@ def add_to_shared_category(sc_id, collection_id):
     result = api(f"/shared-categories/{sc_id}/collections", method="POST",
                  data={"collection_id": str(collection_id)})
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 足迹已加入共享分类 [{sc_id}]")
     return result
@@ -418,7 +418,7 @@ def remove_from_shared_category(sc_id, collection_id):
     result = api(f"/shared-categories/{sc_id}/collections/{collection_id}",
                  method="DELETE")
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 足迹已移出共享分类 [{sc_id}]")
     return result
@@ -431,7 +431,7 @@ def create_invite_link(sc_id, duration_hours=24):
         data["duration_hours"] = duration_hours
     result = api(f"/shared-categories/{sc_id}/invite-link", method="POST", data=data)
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
         return result
     _echo(f"✅ 邀请链接已生成:")
     _echo(f"   URL: {result.get('url')}")
@@ -447,7 +447,7 @@ def agent_register():
     """Agent 自主注册：创建新账号并返回访问令牌"""
     result = api("/register", method="POST", no_auth=True)
     if "error" in result:
-        print(f"❌ 注册失败: {result['error']}")
+        _echo(f"❌ 注册失败: {result['error']}")
         return result
     _echo(f"Token: {result['token']}")
     _echo(f"\n{result.get('message', '')}")
@@ -458,7 +458,7 @@ def agent_magic_link():
     """生成一次性登录链接"""
     result = api("/magic-link", method="POST")
     if "error" in result:
-        print(f"❌ 生成链接失败: {result['error']}")
+        _echo(f"❌ 生成链接失败: {result['error']}")
         return result
     _echo(f"链接: {result['url']}")
     _echo(f"有效期: {result['expires_in']} 秒（{result['expires_in'] // 60} 分钟）")
