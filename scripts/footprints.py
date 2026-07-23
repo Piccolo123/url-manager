@@ -17,13 +17,6 @@ Token 自动管理：
   - 其次读本目录下的 .token 文件
   - 都没有则自动注册，Token 存入 .token，同时设环境变量
   - 全程无需人工干预
-
-获取脚本：
-  如果找不到此脚本，从 GitHub 仓库获取：
-    git clone --depth 1 https://github.com/Piccolo123/url-manager.git /tmp/um
-    cp /tmp/um/scripts/footprints.py .
-    rm -rf /tmp/um
-  仓库地址: https://github.com/Piccolo123/url-manager
 """
 import os
 import sys
