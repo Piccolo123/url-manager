@@ -55,6 +55,7 @@ rm -rf /tmp/um
 | "把共享的存到我自己的" | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids> [--json]` |
 | 确认身份 | `python3 {baseDir}/scripts/footprints.py me [--json]` |
 | 整理完毕 → 发给用户 | `python3 {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
+| 重新认证（换 Token） | `python3 {baseDir}/scripts/footprints.py agent_register [--json]` |
 
 ## 完整命令参考
 
@@ -86,7 +87,7 @@ rm -rf /tmp/um
 | `python3 {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
 | `python3 {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
 | `python3 {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "我有个邀请码" |
-| `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> <collection_id>` | "把这个加到团队收藏里" |
+| `python3 {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | "把这个加到团队收藏里" |
 | `python3 {baseDir}/scripts/footprints.py remove-from-shared <sc_id> <collection_id>` | "把这个从共享里移除" |
 | `python3 {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
 
@@ -96,6 +97,7 @@ rm -rf /tmp/um
 |------|--------------|
 | `python3 {baseDir}/scripts/footprints.py me` | 会话开始时确认身份 |
 | `python3 {baseDir}/scripts/footprints.py agent_magic_link` | 整理完毕 → 生成链接 → 发给用户 |
+| `python3 {baseDir}/scripts/footprints.py agent_register` | 重新注册 / 更换凭证 |
 
 ## 核心工作流
 
@@ -125,7 +127,7 @@ rm -rf /tmp/um
 1. python3 {baseDir}/scripts/footprints.py create-shared-category name="团队知识库" mode=cocreate
 2. python3 {baseDir}/scripts/footprints.py create-invite-link sc_id → 把邀请码发给同事
 3. 同事：python3 {baseDir}/scripts/footprints.py join-shared-category code
-4. 所有人：python3 {baseDir}/scripts/footprints.py add-to-shared sc_id collection_id → 共建知识库
+4. 所有人：python3 {baseDir}/scripts/footprints.py add-to-shared sc_id --collection-id collection_id → 共建知识库
 ```
 
 ### 批量整理

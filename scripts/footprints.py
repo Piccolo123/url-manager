@@ -10,7 +10,20 @@ AI 足迹 Agent API 工具脚本 — 零配置，装完即用
   python3 footprints.py add <url> --title <title> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]
   python3 footprints.py update <id> [--title <t>] [--description <d>] [--category-ids <ids>] [--tags <tags>] [--json]
   python3 footprints.py batch-update '<json-array>' [--json]
-  ...
+  python3 footprints.py categories [--json]
+  python3 footprints.py create-category <name> [--category-set-id <id>] [--json]
+  python3 footprints.py tags [--json]
+  python3 footprints.py category-sets [--json]
+  python3 footprints.py create-category-set <name> [--json]
+  python3 footprints.py copy <id> --category-ids <ids> [--json]
+  python3 footprints.py shared-categories [--json]
+  python3 footprints.py create-shared-category <name> <mode> [--color <hex>] [--json]
+  python3 footprints.py join-shared-category <code> [--json]
+  python3 footprints.py add-to-shared-category <sc_id> --collection-id <id> [--json]
+  python3 footprints.py remove-from-shared-category <sc_id> --collection-id <id> [--json]
+  python3 footprints.py create-invite-link <sc_id> [--duration-hours <h>] [--json]
+  python3 footprints.py agent_register [--json]
+  python3 footprints.py agent_magic_link [--json]
 
 Token 自动管理：
   - 优先读环境变量 FOOTPRINTS_TOKEN
@@ -322,18 +335,18 @@ def batch_update_collections(updates_json):
     try:
         updates = json.loads(updates_json)
     except json.JSONDecodeError as e:
-        print(f"❌ JSON 解析失败: {e}")
+        _echo(f"❌ JSON 解析失败: {e}")
         return {"error": str(e)}
     if not isinstance(updates, list):
-        print("❌ 参数应为 JSON 数组")
+        _echo("❌ 参数应为 JSON 数组")
         return {"error": "不是数组"}
     result = api("/collections/batch", method="PUT", data={"updates": updates})
     if "error" in result:
-        print(f"❌ {result['error']}")
+        _echo(f"❌ {result['error']}")
     else:
-        print(f"✅ 成功 {result['ok']} 条" + (f"，失败 {result['errors']} 条" if result.get('errors') else ""))
+        _echo(f"✅ 成功 {result['ok']} 条" + (f"，失败 {result['errors']} 条" if result.get('errors') else ""))
         for e in result.get("error_details", []):
-            print(f"   ❌ {e['id']}: {e['detail']}")
+            _echo(f"   ❌ {e['id']}: {e['detail']}")
     return result
 
 
