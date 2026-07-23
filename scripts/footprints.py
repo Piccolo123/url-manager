@@ -367,7 +367,7 @@ def shared_categories():
     shared = [c for c in result if c.get("mode")]
     if not shared:
         _echo("暂无共享分类")
-        return result
+        return shared
     for c in shared:
         mode_tag = "[共创]" if c.get("mode") == "cocreate" else "[订阅]"
         _echo(f"  [{c['id']}] {c['name']} {mode_tag}")
