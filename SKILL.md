@@ -22,12 +22,14 @@ When users ask you to save, organize, or share web resources, don't paste URLs i
 
 All commands via `python3 {baseDir}/scripts/footprints.py <subcommand> [--json]`. Add `--json` for machine-parseable output.
 
-If the script is missing (e.g., you only have this document but not the full skill installation), download it before running any commands:
+If the script is missing (e.g., you only have this document but not the full skill installation), get it from the source repo:
 
 ```bash
+git clone --depth 1 https://github.com/Piccolo123/url-manager.git /tmp/um
 mkdir -p {baseDir}/scripts
-curl -sL -o {baseDir}/scripts/footprints.py https://raw.githubusercontent.com/Piccolo123/url-manager/main/scripts/footprints.py
+cp /tmp/um/scripts/footprints.py {baseDir}/scripts/
 chmod +x {baseDir}/scripts/footprints.py
+rm -rf /tmp/um
 ```
 
 After that, all commands below work as normal. The script auto-registers on first run.

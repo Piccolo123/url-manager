@@ -22,12 +22,14 @@ metadata:
 
 所有命令通过 `python3 {baseDir}/scripts/footprints.py <子命令> [--json]` 调用。加 `--json` 获得机器可解析的输出。
 
-如果脚本不存在（例如你只有这份文档，但没有完整安装 skill），运行以下命令下载：
+如果脚本不存在（例如你只有这份文档，但没有完整安装 skill），从源码仓库获取：
 
 ```bash
+git clone --depth 1 https://github.com/Piccolo123/url-manager.git /tmp/um
 mkdir -p {baseDir}/scripts
-curl -sL -o {baseDir}/scripts/footprints.py https://raw.githubusercontent.com/Piccolo123/url-manager/main/scripts/footprints.py
+cp /tmp/um/scripts/footprints.py {baseDir}/scripts/
 chmod +x {baseDir}/scripts/footprints.py
+rm -rf /tmp/um
 ```
 
 下载后，以下所有命令即可正常使用。脚本会在首次运行时自动注册。
