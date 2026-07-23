@@ -3,27 +3,27 @@
 AI 足迹 Agent API 工具脚本 — 零配置，装完即用
 
 用法：
-  python3 footprints.py me [--json]
-  python3 footprints.py search <query> [--limit <n>] [--json]
-  python3 footprints.py list [--category-id <id>] [--limit <n>] [--json]
-  python3 footprints.py get <id> [--json]
-  python3 footprints.py add <url> --title <title> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]
-  python3 footprints.py update <id> [--title <t>] [--description <d>] [--category-ids <ids>] [--tags <tags>] [--json]
-  python3 footprints.py batch-update '<json-array>' [--json]
-  python3 footprints.py categories [--json]
-  python3 footprints.py create-category <name> [--category-set-id <id>] [--json]
-  python3 footprints.py tags [--json]
-  python3 footprints.py category-sets [--json]
-  python3 footprints.py create-category-set <name> [--json]
-  python3 footprints.py copy <id> --category-ids <ids> [--json]
-  python3 footprints.py shared-categories [--json]
-  python3 footprints.py create-shared-category <name> <mode> [--color <hex>] [--json]
-  python3 footprints.py join-shared-category <code> [--json]
-  python3 footprints.py add-to-shared <sc_id> --collection-id <id> [--json]
-  python3 footprints.py remove-from-shared <sc_id> --collection-id <id> [--json]
-  python3 footprints.py create-invite-link <sc_id> [--duration-hours <h>] [--json]
-  python3 footprints.py agent_register [--json]
-  python3 footprints.py agent_magic_link [--json]
+  python footprints.py me [--json]
+  python footprints.py search <query> [--limit <n>] [--json]
+  python footprints.py list [--category-id <id>] [--limit <n>] [--json]
+  python footprints.py get <id> [--json]
+  python footprints.py add <url> --title <title> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]
+  python footprints.py update <id> [--title <t>] [--description <d>] [--category-ids <ids>] [--tags <tags>] [--json]
+  python footprints.py batch-update '<json-array>' [--json]
+  python footprints.py categories [--json]
+  python footprints.py create-category <name> [--category-set-id <id>] [--json]
+  python footprints.py tags [--json]
+  python footprints.py category-sets [--json]
+  python footprints.py create-category-set <name> [--json]
+  python footprints.py copy <id> --category-ids <ids> [--json]
+  python footprints.py shared-categories [--json]
+  python footprints.py create-shared-category <name> <mode> [--color <hex>] [--json]
+  python footprints.py join-shared-category <code> [--json]
+  python footprints.py add-to-shared <sc_id> --collection-id <id> [--json]
+  python footprints.py remove-from-shared <sc_id> --collection-id <id> [--json]
+  python footprints.py create-invite-link <sc_id> [--duration-hours <h>] [--json]
+  python footprints.py agent_register [--json]
+  python footprints.py agent_magic_link [--json]
 
 Token 自动管理：
   - 优先读环境变量 FOOTPRINTS_TOKEN
@@ -71,7 +71,8 @@ def _get_token():
         try:
             with open(TOKEN_FILE, "w") as f:
                 f.write(token)
-            os.chmod(TOKEN_FILE, 0o600)
+            if sys.platform != "win32":
+                os.chmod(TOKEN_FILE, 0o600)
         except Exception:
             pass
         if not JSON_MODE:
@@ -473,7 +474,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         if JSON_MODE:
-            print(json.dumps({"error": "缺少命令", "usage": "python3 footprints.py <me|search|list|get|add|update|...>"}))
+            print(json.dumps({"error": "缺少命令", "usage": "python footprints.py <me|search|list|get|add|update|...>"}))
         else:
             show_help()
         sys.exit(0)
