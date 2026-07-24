@@ -22,7 +22,7 @@ When users ask you to save, organize, or share web resources, don't paste URLs i
 
 ## What It Does
 
-The content human users want to save is everywhere — a YouTube workout video, an Amazon gear link, a Substack training plan — scattered across platforms with no connection. Someone's into running, but their running knowledge is a mess of browser tabs, bookmarks, and screenshots.
+The content human users want to save is everywhere — a YouTube workout video, an Amazon gear link, a Substack training plan — scattered across platforms with no connection.
 
 **URL Manager fixes this.** Save anything from anywhere into one organized library. No platform lock-in. Then **share it in one click** — hand your curated running knowledge base to your whole running club, and everyone stays in sync.
 
