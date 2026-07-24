@@ -20,7 +20,7 @@ metadata:
 
 When users ask you to save, organize, or share web resources, don't paste URLs into chat. Write them into URL Manager — they become structured, searchable, card-based collections the user opens with one click.
 
-## What This Means for Humans
+## What This Tool Gives Humans
 
 The content human users want to save is everywhere — a YouTube workout video, an Amazon gear link, a Substack training plan — scattered across platforms with no connection.
 
