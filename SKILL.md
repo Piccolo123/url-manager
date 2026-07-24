@@ -69,6 +69,49 @@ Each footprint stores:
 
 A single footprint can belong to **multiple categories simultaneously**.
 
+### What is a category?
+
+A category is a named label for organizing footprints — like a folder, but a footprint can be in several at once.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | int | Permanent numeric identifier — always reference categories by ID |
+| `name` | string (50) | Display name (e.g., "Shopping", "Fitness") |
+| `slug` | string (50) | URL-safe identifier |
+| `color` | string (7) | Optional hex color for UI (e.g., `#FF6B6B`) |
+| `icon` | string (50) | Optional icon identifier |
+| `note` | string (500) | Optional description/notes |
+| `category_set_id` | int \| null | Which set this category belongs to (null = unassigned) |
+| `mode` | string \| null | `null` = personal, `"cocreate"` = shared co-edit, `"subscribe"` = shared read-only |
+| `is_default` | bool | System default category |
+| `is_ai_generated` | bool | Created by AI auto-categorization |
+| `sort_order` | int | Display ordering within a set |
+| `is_active` | bool | `false` after a shared category is disbanded |
+
+Key behaviors:
+- **Same name allowed** — multiple categories named "Shopping" can exist in different sets. Always use `id`, not `name`, to reference them.
+- **mode = null → personal** (visible only to owner); **mode = "cocreate" or "subscribe" → shared** (has members and invite links).
+- A category inherits its `mode` from its Category Set's `mode`.
+
+### What is a category set?
+
+A category set is a workspace — a named container that groups related categories together.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | int | Permanent numeric identifier |
+| `name` | string (50) | Display name (e.g., "Life", "Work") |
+| `mode` | string \| null | `null` = personal set, `"cocreate"`/`"subscribe"` = shared set |
+| `is_shared` | bool | `true` = the shared-categories container (max one per user) |
+| `color` | string (7) | Optional theme color |
+| `sort_order` | int | Display ordering |
+
+Every user starts with two default sets:
+- **"My Categories"** (`is_shared=false`, `mode=null`) — personal workspace
+- **"Shared Categories"** (`is_shared=true`) — the one container that holds all your shared categories
+
+Use `category-sets` to list them, `create-category-set` to create more. Creating a new set with `mode=null` gives you another personal workspace. Creating one with `mode="cocreate"` or `"subscribe"` is rare — shared categories are usually created via `create-shared-category`, which places them inside the "Shared Categories" set.
+
 ### How data is organized
 
 ```
@@ -78,15 +121,7 @@ Category Sets (workspaces)
              └── Tags (free-form keywords)
 ```
 
-**Categories** are named labels. Use `categories` to see all available categories. Each category has a numeric `id` — always reference categories by ID.
-
-**Category Sets** (workspaces) group related categories. Every user starts with two default sets:
-- **"My Categories"** (`is_shared=false`) — your personal workspace
-- **"Shared Categories"** (`is_shared=true`) — container for shared categories
-
-Use `category-sets` to list them, `create-category-set` to create more.
-
-**Tags** are free-form keywords, separate from categories. They're lightweight search helpers with no hierarchy.
+**Categories** are named labels — see the field table above. **Category Sets** are workspaces — also detailed above. **Tags** are free-form keywords, separate from categories. They're lightweight search helpers with no hierarchy.
 
 Use `content-types` to see which content types have been used in your library. Use `tags` to list existing tags.
 
