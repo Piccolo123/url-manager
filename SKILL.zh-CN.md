@@ -11,7 +11,8 @@ metadata:
     emoji: "🔗"
     minGatewayVersion: "2026.6.0"
     requires:
-      bins: ["python"]
+      bins:
+        - python
       network: true
 ---
 
@@ -41,7 +42,7 @@ rm -rf /tmp/um
 
 | 用户说 | 命令 |
 |--------|------|
-| "收藏/保存这个链接" | `python {baseDir}/scripts/footprints.py add <url> --title <文本> [--category-ids <ids>] [--json]` |
+| "收藏/保存这个链接" | `python {baseDir}/scripts/footprints.py add <url> --title <文本> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]` |
 | "找那篇关于XX的文章" | `python {baseDir}/scripts/footprints.py search <关键词> [--limit <n>] [--json]` |
 | "看看我的收藏" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "看看这条详情" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
@@ -56,7 +57,7 @@ rm -rf /tmp/um
 | "把共享的存到我自己的" | `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids> [--json]` |
 | 确认身份 | `python {baseDir}/scripts/footprints.py me [--json]` |
 | 整理完毕 → 发给用户 | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
-| 重新认证（换 Token） | `python {baseDir}/scripts/footprints.py agent_register [--json]` |
+| 重新认证（换 Token）⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ 会创建新账号，旧数据丢失 |
 
 ## 完整命令参考
 
@@ -106,11 +107,11 @@ rm -rf /tmp/um
 
 ```
 1. 自动注册 → Token 保存到 {baseDir}/.token
-2. python {baseDir}/scripts/footprints.py add url="..." → 添加收藏
+2. python {baseDir}/scripts/footprints.py add "<url>" --title "<标题>" → 添加收藏
 3. python {baseDir}/scripts/footprints.py categories → 了解已有结构
-4. python {baseDir}/scripts/footprints.py create-category name="..." → 创建分类
-5. python {baseDir}/scripts/footprints.py update id category_ids="..." → 归类
-6. agent_magic_link → 发链接："整理好了，点这里查看 → [链接]"
+4. python {baseDir}/scripts/footprints.py create-category "<名称>" → 创建分类
+5. python {baseDir}/scripts/footprints.py update <id> --category-ids <ids> → 归类
+6. python {baseDir}/scripts/footprints.py agent_magic_link → 发链接："整理好了，点这里查看 → [链接]"
 ```
 
 ### 老用户 — 日常使用
@@ -125,10 +126,10 @@ rm -rf /tmp/um
 ### 团队共享
 
 ```
-1. python {baseDir}/scripts/footprints.py create-shared-category name="团队知识库" mode=cocreate
-2. python {baseDir}/scripts/footprints.py create-invite-link sc_id → 把邀请码发给同事
-3. 同事：python {baseDir}/scripts/footprints.py join-shared-category code
-4. 所有人：python {baseDir}/scripts/footprints.py add-to-shared sc_id --collection-id collection_id → 共建知识库
+1. python {baseDir}/scripts/footprints.py create-shared-category "团队知识库" --mode cocreate
+2. python {baseDir}/scripts/footprints.py create-invite-link <sc_id> → 把邀请码发给同事
+3. 同事：python {baseDir}/scripts/footprints.py join-shared-category <invite_code>
+4. 所有人：python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <collection_id> → 共建知识库
 ```
 
 ### 批量整理
@@ -137,8 +138,8 @@ rm -rf /tmp/um
 1. python {baseDir}/scripts/footprints.py list --limit 100 → 获取全部收藏
 2. python {baseDir}/scripts/footprints.py categories → 规划目标分类
 3. python {baseDir}/scripts/footprints.py batch-update '[
-     {"id":"uuid1","category_ids":"1,3"},
-     {"id":"uuid2","title":"新标题","category_ids":"2,5"}
+     {"id":"uuid1","category_ids":[1,3]},
+     {"id":"uuid2","title":"新标题","category_ids":[2,5]}
    ]' → 一次性修改（每次最多 50 条）
 ```
 
@@ -271,7 +272,7 @@ python {baseDir}/scripts/footprints.py update 42 --category-ids 3,5,7
 
 ### 频率限制
 
-频繁调用会触发 HTTP 429。批量操作优先用 `batch_update`，连续调用间加适当间隔，遇到限流等几秒重试。
+频繁调用会触发 HTTP 429。批量操作优先用 `batch-update`，连续调用间加适当间隔，遇到限流等几秒重试。
 
 ### 成员管理需通过网页
 

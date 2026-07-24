@@ -11,7 +11,8 @@ metadata:
     emoji: "🔗"
     minGatewayVersion: "2026.6.0"
     requires:
-      bins: ["python"]
+      bins:
+        - python
       network: true
 ---
 
@@ -41,7 +42,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 
 | User says | Command |
 |-----------|---------|
-| "Save/bookmark/collect this link" | `python {baseDir}/scripts/footprints.py add <url> --title <text> [--category-ids <ids>] [--json]` |
+| "Save/bookmark/collect this link" | `python {baseDir}/scripts/footprints.py add <url> --title <text> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]` |
 | "Find that article about X" | `python {baseDir}/scripts/footprints.py search <query> [--limit <n>] [--json]` |
 | "Show me my bookmarks" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "Show me details" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
@@ -56,7 +57,7 @@ After that, all commands below work as normal. The script auto-registers on firs
 | "Save shared to my own" | `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids> [--json]` |
 | Check identity | `python {baseDir}/scripts/footprints.py me [--json]` |
 | Done organizing → deliver to user | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
-| Re-authenticate (new token) | `python {baseDir}/scripts/footprints.py agent_register [--json]` |
+| Re-authenticate (new token) ⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ Creates new account, old data lost |
 
 ## Full Command Reference
 
@@ -105,11 +106,11 @@ After that, all commands below work as normal. The script auto-registers on firs
 
 ```
 1. Token check → auto-register (save to {baseDir}/.token)
-2. python {baseDir}/scripts/footprints.py add url="..." → save bookmarks
+2. python {baseDir}/scripts/footprints.py add "<url>" --title "<title>" → save bookmarks
 3. python {baseDir}/scripts/footprints.py categories → discover structure
-4. python {baseDir}/scripts/footprints.py create-category name="..." → create categories
-5. python {baseDir}/scripts/footprints.py update id category_ids="..." → categorize
-6. agent_magic_link → send link: "Done! View here → [link]"
+4. python {baseDir}/scripts/footprints.py create-category "<name>" → create categories
+5. python {baseDir}/scripts/footprints.py update <id> --category-ids <ids> → categorize
+6. python {baseDir}/scripts/footprints.py agent_magic_link → send link: "Done! View here → [link]"
 ```
 
 ### Returning User — Daily Use
@@ -123,11 +124,11 @@ After that, all commands below work as normal. The script auto-registers on firs
 
 ### Team Sharing
 
-```
-1. python {baseDir}/scripts/footprints.py create-shared-category name="Team KB" mode=cocreate
-2. python {baseDir}/scripts/footprints.py create-invite-link sc_id → share code with team
-3. Teammates: python {baseDir}/scripts/footprints.py join-shared-category code
-4. Everyone: python {baseDir}/scripts/footprints.py add-to-shared sc_id --collection-id collection_id → build together
+``` 
+1. python {baseDir}/scripts/footprints.py create-shared-category "Team KB" --mode cocreate
+2. python {baseDir}/scripts/footprints.py create-invite-link <sc_id> → share code with team
+3. Teammates: python {baseDir}/scripts/footprints.py join-shared-category <invite_code>
+4. Everyone: python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <collection_id> → build together
 ```
 
 ### Batch Reorganization
@@ -136,8 +137,8 @@ After that, all commands below work as normal. The script auto-registers on firs
 1. python {baseDir}/scripts/footprints.py list --limit 100 → get all bookmarks
 2. python {baseDir}/scripts/footprints.py categories → map target categories
 3. python {baseDir}/scripts/footprints.py batch-update '[
-     {"id":"uuid1","category_ids":"1,3"},
-     {"id":"uuid2","title":"New Title","category_ids":"2,5"}
+     {"id":"uuid1","category_ids":[1,3]},
+     {"id":"uuid2","title":"New Title","category_ids":[2,5]}
    ]' → bulk edit (max 50 per call)
 ```
 
@@ -270,7 +271,7 @@ Each call creates a fresh empty account. Always check for a saved token first. I
 
 ### Rate limiting
 
-Frequent API calls trigger HTTP 429. Use `batch_update` for bulk operations, add delays between rapid calls, retry after a few seconds on 429.
+Frequent API calls trigger HTTP 429. Use `batch-update` for bulk operations, add delays between rapid calls, retry after a few seconds on 429.
 
 ### No member management via API
 
