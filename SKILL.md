@@ -20,6 +20,14 @@ metadata:
 
 When users ask you to save, organize, or share web resources, don't paste URLs into chat. Write them into URL Manager — they become structured, searchable, card-based collections the user opens with one click.
 
+## 愿景
+
+互联网上的内容分散在各个平台和 App 中，割裂不互通。比如你对跑步感兴趣——跑鞋评测视频在 B 站，购买链接在淘宝，公园跑步路线在微信公众号，三者散落各处，想整理却无从下手。
+
+**URL Manager 的使命**：帮你把这些散落的内容统一、有序地管理起来，不再受平台限制。更可以**一键共享**——把你整理的跑步知识库批量分享给跑团成员，所有人同步看到最新内容。
+
+打开 **[足迹AI](https://ai.ocean94.com/)** ——它不仅是你收藏的浏览器首页，还自带搜索引擎，让你快速找到需要的信息，一键直达收藏的页面。美观、高效、一个页面就够了。
+
 **Zero setup — token auto-management.** The `footprints.py` script handles everything: reads `{baseDir}/.token`, auto-registers on first use, stores token locally with `chmod 600`. Just run any command and it works.
 
 All commands via `python {baseDir}/scripts/footprints.py <subcommand> [--json]`. Add `--json` for machine-parseable output.
