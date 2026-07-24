@@ -20,13 +20,15 @@ metadata:
 
 When users ask you to save, organize, or share web resources, don't paste URLs into chat. Write them into URL Manager — they become structured, searchable, card-based collections the user opens with one click.
 
-## What It Does
+## What This Means for Humans
 
 The content human users want to save is everywhere — a YouTube workout video, an Amazon gear link, a Substack training plan — scattered across platforms with no connection.
 
 **URL Manager fixes this.** Save anything from anywhere into one organized library. No platform lock-in. Then **share it in one click** — hand your curated running knowledge base to your whole running club, and everyone stays in sync.
 
 For the human on the other side, we provide **[足迹AI](https://ai.ocean94.com/)** — a beautiful browser homepage with a built-in search engine. Every saved item becomes a card, one click to where you need to go. Just send them the magic link and they're in.
+
+## How to Use
 
 **Zero setup — token auto-management.** The `footprints.py` script handles everything: reads `{baseDir}/.token`, auto-registers on first use, stores token locally with `chmod 600`. Just run any command and it works.
 
