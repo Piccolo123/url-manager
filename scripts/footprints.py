@@ -17,7 +17,7 @@ AI 足迹 Agent API 工具脚本 — 零配置，装完即用
   python footprints.py create-category-set <name> [--json]
   python footprints.py copy <id> --category-ids <ids> [--json]
   python footprints.py shared-categories [--json]
-  python footprints.py create-shared-category <name> <mode> [--color <hex>] [--json]
+  python footprints.py create-shared-category <name> --mode <cocreate|subscribe> [--color <hex>] [--description <desc>] [--json]
   python footprints.py join-shared-category <code> [--json]
   python footprints.py add-to-shared <sc_id> --collection-id <id> [--json]
   python footprints.py remove-from-shared <sc_id> --collection-id <id> [--json]
