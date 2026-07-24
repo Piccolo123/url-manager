@@ -286,6 +286,15 @@ def get_collection(collection_id):
     return result
 
 
+def content_types():
+    """列出当前用户使用过的所有 content_type"""
+    result = api("/content-types")
+    if not JSON_MODE and isinstance(result, list):
+        for ct in result:
+            _echo(f"  {ct['value']} ({ct['count']}条)")
+    return result
+
+
 def add(url, title=None, description=None, category_ids=None, tags=None, content_type=None):
     data = {"url": url}
     if title:
@@ -629,6 +638,9 @@ if __name__ == "__main__":
         parser.add_argument("--duration-hours", type=int, default=24)
         args, _ = parser.parse_known_args(sys.argv[2:])
         result = create_invite_link(args.sc_id, args.duration_hours)
+        _output(result)
+    elif cmd == "content-types":
+        result = content_types()
         _output(result)
     elif cmd in ("help", "-h", "--help"):
         show_help()

@@ -80,6 +80,8 @@ Use `category-sets` to list them, `create-category-set` to create more.
 
 **Tags** are free-form keywords, separate from categories. They're lightweight search helpers with no hierarchy.
 
+Use `content-types` to see which content types have been used in your library. Use `tags` to list existing tags.
+
 ### Personal vs Shared categories
 
 A category's `mode` field tells you what kind it is:
@@ -167,6 +169,7 @@ The owner can switch between cocreate and subscribe at any time via the web UI.
 | Check identity | `python {baseDir}/scripts/footprints.py me [--json]` |
 | Done organizing → deliver to user | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
 | Re-authenticate (new token) ⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ Creates new account, old data lost |
+| List used content types | `python {baseDir}/scripts/footprints.py content-types [--json]` |
 
 ## Full Command Reference
 
