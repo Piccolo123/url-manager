@@ -20,6 +20,14 @@ metadata:
 
 当用户让你保存、整理或分享网页资源时，不要用在聊天框里粘贴链接。写入 URL Manager——它们会变成结构化、可搜索的卡片集合，用户一键即可浏览。
 
+## 主要功能
+
+人类用户想收藏的内容无处不在——B 站的健身视频、淘宝的装备链接、微信公众号的训练计划——散落在各个平台，割裂不互通。有人喜欢跑步，但 Ta 的跑步知识散落在浏览器标签页、书签和截图里。
+
+**URL Manager 解决这个问题。** 把任何地方的任何内容收纳到一个有序的知识库中，不受平台限制。更可以**一键共享**——把整理好的跑步知识库批量分享给跑团，所有人同步看到最新内容。
+
+人类用户打开 **[足迹AI](https://ai.ocean94.com/)** ——一个美观的浏览器首页，内置搜索引擎。每条收藏变成一张精美卡片，一键直达目标页面。把魔法链接发给用户，Ta 就进来了。
+
 **零配置——Token 自动管理。** `footprints.py` 脚本全自动处理：读取 `{baseDir}/.token`，首次使用时自动注册，本地保存 Token（chmod 600）。直接运行任意命令即可。
 
 所有命令通过 `python {baseDir}/scripts/footprints.py <子命令> [--json]` 调用。加 `--json` 获得机器可解析的输出。
@@ -36,13 +44,124 @@ rm -rf /tmp/um
 
 下载后，以下所有命令即可正常使用。脚本会在首次运行时自动注册。
 
+## 系统概念
+
+### 什么是足迹？
+
+足迹是 URL Manager 的基本单位——一条结构化的、可搜索的记录。它可以是一个网页链接、一段纯文字笔记、一个想法，或者任何你想保存、日后检索的内容。
+
+每条足迹存储以下信息：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | UUID | 永久唯一标识——所有操作都用它 |
+| `url` | 字符串 (8192) | 原始链接。**可以为空**，支持纯文字足迹 |
+| `title` | 字符串 (512) | 短标题——由你设置 |
+| `description` | 字符串 (1024) | 补充说明——由你设置 |
+| `content_type` | 字符串 (50) | `article` / `video` / `image` / `audio` / `page`——由你设置 |
+| `ai_summary` | 文本 | AI 生成的摘要（网页提交时自动生成） |
+| `favicon` / `og_image` | 字符串 | 网站图标和预览图（自动抓取） |
+| `price_hint` | 字符串 | AI 提取的价格提示（自动生成） |
+| `price` / `address` / `custom_date` / `contact` | 字符串 | 用户填写的元数据 |
+| `is_favorite` / `is_archived` | 布尔 | 状态标记 |
+| `category_ids` | 列表[int] | 足迹所属的分类——**由你分配** |
+| `tag_names` | 列表[str] | 关键词——**由你分配** |
+
+一条足迹可以同时属于**多个分类**。
+
+### 数据组织方式
+
+```
+分类集（工作区）
+  └── 分类（如"购物"、"美食"、"学习"）
+        └── 足迹
+             └── 标签（自由关键词）
+```
+
+**分类**是有名字的标签。用 `categories` 查看所有可用分类。每个分类有数字 `id`——始终用 ID 引用分类。
+
+**分类集**（工作区）将相关分类组织在一起。每个用户默认有两个分类集：
+- **「我的分类」**（`is_shared=false`）——个人工作区
+- **「共享分类」**（`is_shared=true`）——共享分类的容器
+
+用 `category-sets` 查看分类集，用 `create-category-set` 创建更多。
+
+**标签**是自由关键词，独立于分类。它们是轻量级的搜索辅助工具，没有层级结构。
+
+用 `content-types` 查看知识库中已使用的内容类型。用 `tags` 查看现有标签。
+
+### 个人分类 vs 共享分类
+
+分类的 `mode` 字段告诉你它是什么类型：
+
+| | 个人分类 | 共享分类 |
+|---|---|---|
+| `mode` | `null`（不显示） | `"cocreate"` 或 `"subscribe"` |
+| 可见范围 | 仅自己 | 自己 + 受邀成员 |
+| 谁能添加足迹 | 仅自己 | 取决于模式 |
+| 有成员和邀请链接 | 否 | 是 |
+
+执行 `categories` 查看**所有**分类——个人和共享在一起。每个分类的 `mode` 字段可以区分它们。执行 `category-sets` 查看它们如何分组为工作区。
+
+### 共享分类模式
+
+**共建（cocreate）**——人人贡献：
+- 任何成员都可以添加/移除足迹（`add-to-shared` / `remove-from-shared`）
+- 任何成员都可以生成邀请链接（`create-invite-link`）
+- 只有所有者可以解散或切换模式
+- 适合：团队知识库、小组旅行规划、共享研究
+
+**订阅（subscribe）**——成员只读：
+- 只有所有者可以添加/移除足迹
+- 只有所有者可以生成邀请链接
+- 成员可以浏览和搜索，但不能修改
+- `add-to-shared` 在订阅模式下返回 403
+- 适合：精选推荐列表、资源收藏
+
+所有者可以通过网页端随时切换共建和订阅模式。
+
+### 共享流程
+
+1. **创建** → `create-shared-category "团队知识库" --mode cocreate`
+2. **生成邀请** → `create-invite-link <sc_id>` → 获得邀请码
+3. **分享**邀请码给团队成员
+4. **加入** → 成员执行 `join-shared-category <code>`
+5. **共建** → 所有人用 `add-to-shared <sc_id> --collection-id <id>`
+6. **本地保存** → 任何人可 `copy <id> --category-ids <ids>` 将共享足迹保存到个人收藏
+
+### 角色与权限
+
+| 操作 | 所有者 | 管理员 | 成员 |
+|------|:-----:|:-----:|:----:|
+| 添加/移除足迹（共建模式） | ✅ | ✅ | ✅ |
+| 添加/移除足迹（订阅模式） | ✅ | ❌ | ❌ |
+| 生成邀请链接（共建模式） | ✅ | ✅ | ✅ |
+| 生成邀请链接（订阅模式） | ✅ | ❌ | ❌ |
+| 编辑分类名称/描述 | ✅ | ❌ | ❌ |
+| 切换共建 ↔ 订阅 | ✅ | ❌ | ❌ |
+| 解散共享分类 | ✅ | ❌ | ❌ |
+| 管理成员 | 仅网页端 | — | — |
+
+### 搜索原理
+
+1. **关键词搜索**（`search <关键词>`）——匹配标题、描述、AI 摘要和提取的文本内容。用 `--category-id` 按分类过滤。
+
+2. **URL 去重**——用 URL 搜索时自动检测并匹配 URL 哈希，完全绕过文本搜索。
+
+### Agent 交互模型
+
+- **零配置**：首次运行自动注册（`POST /register`），获得 Bearer Token
+- **Token 持久化**：保存在 `{baseDir}/.token`（chmod 600），跨会话复用
+- **魔法链接**：`agent_magic_link` 为人类用户生成可点击的卡片界面 URL——有效期 30 天，可重复使用
+- **账号升级**：用户后续绑定手机号后，Agent 创建的账号无缝升级为正式账号
+
 ## 快捷对照
 
 ### 用户说…… → 执行
 
 | 用户说 | 命令 |
 |--------|------|
-| "收藏/保存这个链接" | `python {baseDir}/scripts/footprints.py add <url> --title <文本> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]` |
+| "收藏/保存这个链接" | `python {baseDir}/scripts/footprints.py add <url> --title <文本> [--description <desc>] [--content-type <type>] [--category-ids <ids>] [--tags <tags>] [--json]` |
 | "找那篇关于XX的文章" | `python {baseDir}/scripts/footprints.py search <关键词> [--limit <n>] [--json]` |
 | "看看我的收藏" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "看看这条详情" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
@@ -58,6 +177,7 @@ rm -rf /tmp/um
 | 确认身份 | `python {baseDir}/scripts/footprints.py me [--json]` |
 | 整理完毕 → 发给用户 | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
 | 重新认证（换 Token）⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ 会创建新账号，旧数据丢失 |
+| 查看已使用的内容类型 | `python {baseDir}/scripts/footprints.py content-types [--json]` |
 
 ## 完整命令参考
 
@@ -79,6 +199,7 @@ rm -rf /tmp/um
 | `python {baseDir}/scripts/footprints.py categories` | 了解有哪些分类 |
 | `python {baseDir}/scripts/footprints.py create-category <name> [--category-set-id <id>]` | "新建一个分类" |
 | `python {baseDir}/scripts/footprints.py tags` | 了解已有标签 |
+| `python {baseDir}/scripts/footprints.py content-types` | 查看已使用的内容类型 |
 | `python {baseDir}/scripts/footprints.py category-sets` | 列出分类集 |
 | `python {baseDir}/scripts/footprints.py create-category-set <name>` | "建个工作区" |
 
