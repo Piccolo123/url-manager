@@ -42,6 +42,15 @@ import urllib.error
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN_FILE = os.path.join(BASEDIR, ".token")
 ENDPOINT = os.environ.get("FOOTPRINTS_ENDPOINT", "https://ai.ocean94.com")
+# 安全：仅允许白名单内的端点，防止环境变量注入劫持网络请求
+_ALLOWED_ENDPOINTS = {
+    "https://ai.ocean94.com",
+    "http://192.168.0.88:8080",
+    "http://localhost:8000",
+}
+_ep = ENDPOINT.rstrip("/")
+if _ep not in _ALLOWED_ENDPOINTS:
+    ENDPOINT = "https://ai.ocean94.com"
 
 # 全局开关：是否以 JSON 模式输出
 JSON_MODE = False
