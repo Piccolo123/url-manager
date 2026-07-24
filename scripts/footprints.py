@@ -286,7 +286,7 @@ def get_collection(collection_id):
     return result
 
 
-def add(url, title=None, description=None, category_ids=None, tags=None):
+def add(url, title=None, description=None, category_ids=None, tags=None, content_type=None):
     data = {"url": url}
     if title:
         data["title"] = title
@@ -296,6 +296,8 @@ def add(url, title=None, description=None, category_ids=None, tags=None):
         data["category_ids"] = [int(x) for x in category_ids.split(",")]
     if tags:
         data["tag_names"] = [t.strip() for t in tags.split(",")]
+    if content_type:
+        data["content_type"] = content_type
     result = api("/collections", method="POST", data=data)
     if "error" in result:
         _echo(f"❌ {result['error']}")
@@ -307,7 +309,7 @@ def add(url, title=None, description=None, category_ids=None, tags=None):
     return result
 
 
-def update_collection(collection_id, title=None, description=None, category_ids=None, tags=None):
+def update_collection(collection_id, title=None, description=None, category_ids=None, tags=None, content_type=None):
     """更新足迹（全部字段可选，传 None 不修改）"""
     data = {}
     if title is not None:
@@ -318,6 +320,8 @@ def update_collection(collection_id, title=None, description=None, category_ids=
         data["category_ids"] = [int(x.strip()) for x in category_ids.split(",")]
     if tags is not None:
         data["tag_names"] = [t.strip() for t in tags.split(",") if t.strip()]
+    if content_type is not None:
+        data["content_type"] = content_type
     result = api(f"/collections/{collection_id}", method="PUT", data=data)
     if "error" in result:
         _echo(f"❌ {result['error']}")
@@ -549,8 +553,9 @@ if __name__ == "__main__":
         parser.add_argument("--description", default=None)
         parser.add_argument("--category-ids", default=None)
         parser.add_argument("--tags", default=None)
+        parser.add_argument("--content-type", default=None, choices=["article","video","image","audio","page"])
         args, _ = parser.parse_known_args(sys.argv[2:])
-        result = add(args.url, args.title, args.description, args.category_ids, args.tags)
+        result = add(args.url, args.title, args.description, args.category_ids, args.tags, args.content_type)
         _output(result)
     elif cmd == "update":
         parser = argparse.ArgumentParser()
@@ -559,8 +564,9 @@ if __name__ == "__main__":
         parser.add_argument("--description", default=None)
         parser.add_argument("--category-ids", default=None)
         parser.add_argument("--tags", default=None)
+        parser.add_argument("--content-type", default=None, choices=["article","video","image","audio","page"])
         args, _ = parser.parse_known_args(sys.argv[2:])
-        result = update_collection(args.id, args.title, args.description, args.category_ids, args.tags)
+        result = update_collection(args.id, args.title, args.description, args.category_ids, args.tags, args.content_type)
         _output(result)
     elif cmd == "copy":
         parser = argparse.ArgumentParser()

@@ -36,13 +36,122 @@ rm -rf /tmp/um
 
 After that, all commands below work as normal. The script auto-registers on first run.
 
+## System Concepts
+
+### What is a footprint?
+
+A footprint is the fundamental unit in URL Manager — a structured, searchable record. It can be a web link, a plain-text note, an idea, or anything you want to save and retrieve later.
+
+Each footprint stores:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID | Permanent unique identifier — use this for all operations |
+| `url` | string (8192) | The original link. **Can be empty** for text-only footprints |
+| `title` | string (512) | A short title — you set this |
+| `description` | string (1024) | Additional context or notes — you can set this |
+| `content_type` | string (50) | `article` / `video` / `image` / `audio` / `page` — you can set this |
+| `ai_summary` | text | AI-generated summary (set automatically during web UI submission) |
+| `favicon` / `og_image` | string | Site icon and preview image (auto-fetched) |
+| `price_hint` | string | AI-extracted price hint (set automatically) |
+| `price` / `address` / `custom_date` / `contact` | string | User-filled metadata fields |
+| `is_favorite` / `is_archived` | boolean | Status flags |
+| `category_ids` | list[int] | Which categories this footprint belongs to — **you assign** |
+| `tag_names` | list[str] | Keywords — **you assign** |
+
+A single footprint can belong to **multiple categories simultaneously**.
+
+### How data is organized
+
+```
+Category Sets (workspaces)
+  └── Categories (labels like "Shopping", "Food", "Learning")
+        └── Footprints
+             └── Tags (free-form keywords)
+```
+
+**Categories** are named labels. Use `categories` to see all available categories. Each category has a numeric `id` — always reference categories by ID.
+
+**Category Sets** (workspaces) group related categories. Every user starts with two default sets:
+- **"My Categories"** (`is_shared=false`) — your personal workspace
+- **"Shared Categories"** (`is_shared=true`) — container for shared categories
+
+Use `category-sets` to list them, `create-category-set` to create more.
+
+**Tags** are free-form keywords, separate from categories. They're lightweight search helpers with no hierarchy.
+
+### Personal vs Shared categories
+
+A category's `mode` field tells you what kind it is:
+
+| | Personal | Shared |
+|---|---|---|
+| `mode` | `null` (not shown) | `"cocreate"` or `"subscribe"` |
+| Visible to | Only you | You + invited members |
+| Who can add footprints | Only you | Depends on mode |
+| Has members and invite links | No | Yes |
+
+Run `categories` to see ALL your categories — personal and shared together. Each category's `mode` field distinguishes them. Run `category-sets` to see how they're grouped into workspaces.
+
+### Shared category modes
+
+**Cocreate (共建)** — Everyone contributes:
+- Any member can add/remove footprints (`add-to-shared` / `remove-from-shared`)
+- Any member can generate invite links (`create-invite-link`)
+- Only the owner can disband or switch modes
+- Best for: team knowledge bases, group trip planning, shared research
+
+**Subscribe (订阅)** — Read-only for members:
+- Only the owner can add/remove footprints
+- Only the owner can generate invite links
+- Members can browse and search but cannot modify
+- `add-to-shared` returns 403 in subscribe mode
+- Best for: curated recommendation lists, resource collections
+
+The owner can switch between cocreate and subscribe at any time via the web UI.
+
+### Sharing workflow
+
+1. **Create** → `create-shared-category "Team KB" --mode cocreate`
+2. **Generate invite** → `create-invite-link <sc_id>` → get a code
+3. **Share** the invite code with teammates
+4. **Join** → teammates run `join-shared-category <code>`
+5. **Build together** → everyone uses `add-to-shared <sc_id> --collection-id <id>`
+6. **Save locally** → anyone can `copy <id> --category-ids <ids>` to save a shared footprint to their personal collection
+
+### Roles and permissions
+
+| Action | Owner | Admin | Member |
+|--------|:-----:|:-----:|:------:|
+| Add/remove footprints (cocreate) | ✅ | ✅ | ✅ |
+| Add/remove footprints (subscribe) | ✅ | ❌ | ❌ |
+| Generate invite link (cocreate) | ✅ | ✅ | ✅ |
+| Generate invite link (subscribe) | ✅ | ❌ | ❌ |
+| Edit category name/description | ✅ | ❌ | ❌ |
+| Switch cocreate ↔ subscribe | ✅ | ❌ | ❌ |
+| Disband shared category | ✅ | ❌ | ❌ |
+| Manage members | Web UI only | — | — |
+
+### How search works
+
+1. **Keyword search** (`search <query>`) — matches against title, description, AI summary, and extracted text content. Filter by category with `--category-id`.
+
+2. **URL dedup** — searching with a URL automatically detects and matches by URL hash, bypassing text search entirely.
+
+### Agent interaction model
+
+- **Zero setup**: first run auto-registers via `POST /register`, receives a Bearer token
+- **Token persistence**: stored in `{baseDir}/.token` with `chmod 600`, reused across sessions
+- **Magic link**: `agent_magic_link` generates a clickable card-based interface URL for the human user — valid 30 days, reusable
+- **Account upgrade**: if the user later binds a phone number, the agent-created account upgrades seamlessly
+
 ## Quick Reference
 
 ### When user says... → Run this
 
 | User says | Command |
 |-----------|---------|
-| "Save/bookmark/collect this link" | `python {baseDir}/scripts/footprints.py add <url> --title <text> [--description <desc>] [--category-ids <ids>] [--tags <tags>] [--json]` |
+| "Save/bookmark/collect this link" | `python {baseDir}/scripts/footprints.py add <url> --title <text> [--description <desc>] [--content-type <type>] [--category-ids <ids>] [--tags <tags>] [--json]` |
 | "Find that article about X" | `python {baseDir}/scripts/footprints.py search <query> [--limit <n>] [--json]` |
 | "Show me my bookmarks" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
 | "Show me details" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
