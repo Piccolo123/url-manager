@@ -155,70 +155,50 @@ The owner can switch between cocreate and subscribe at any time via the web UI.
 - **Magic link**: `agent_magic_link` generates a clickable card-based interface URL for the human user — valid 30 days, reusable
 - **Account upgrade**: if the user later binds a phone number, the agent-created account upgrades seamlessly
 
-## Quick Reference
+## Command Reference
 
-### When user says... → Run this
-
-| User says | Command |
-|-----------|---------|
-| "Save/bookmark/collect this link" | `python {baseDir}/scripts/footprints.py add <url> --title <text> [--description <desc>] [--content-type <type>] [--category-ids <ids>] [--tags <tags>] [--json]` |
-| "Find that article about X" | `python {baseDir}/scripts/footprints.py search <query> [--limit <n>] [--json]` |
-| "Show me my bookmarks" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
-| "Show me details" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
-| "Change title/move to category" | `python {baseDir}/scripts/footprints.py update <id> --title <t> --category-ids <ids> [--json]` |
-| "Reorganize all bookmarks" | `python {baseDir}/scripts/footprints.py batch-update '<json>' [--json]` |
-| "Create a new category" | `python {baseDir}/scripts/footprints.py create-category <name> [--json]` |
-| "Create a workspace" | `python {baseDir}/scripts/footprints.py create-category-set <name> [--json]` |
-| "Create a shared collection" | `python {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate [--json]` |
-| "Send invite link" | `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--json]` |
-| "I have an invite code" | `python {baseDir}/scripts/footprints.py join-shared-category <code> [--json]` |
-| "Add to team collection" | `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id> [--json]` |
-| "Save shared to my own" | `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids> [--json]` |
-| Check identity | `python {baseDir}/scripts/footprints.py me [--json]` |
-| Done organizing → deliver to user | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
-| Re-authenticate (new token) ⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ Creates new account, old data lost |
-| List used content types | `python {baseDir}/scripts/footprints.py content-types [--json]` |
-
-## Full Command Reference
+Understand the user's real intent, then call one or more commands to fulfill it.
 
 ### Save & Search
 
-| Command | Use when user says... |
-|---------|----------------------|
-| `python {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "Save/bookmark/collect this link" |
-| `python {baseDir}/scripts/footprints.py get <id>` | "Show me details of that bookmark" |
-| `python {baseDir}/scripts/footprints.py search <query>` | "Find that article about Docker" |
-| `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | "Show me my bookmarks" |
+| Command | What it does |
+|---------|-------------|
+| `python {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --content-type <type> --category-ids <ids> --tags <tags>` | Save a link or plain-text entry (url can be empty) |
+| `python {baseDir}/scripts/footprints.py get <id>` | View a footprint's full details |
+| `python {baseDir}/scripts/footprints.py search <query>` | Full-text search across title, description, AI summary |
+| `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | List footprints |
 
 ### Organize
 
-| Command | Use when user says... |
-|---------|----------------------|
-| `python {baseDir}/scripts/footprints.py update <id> --title <t> --description <d> --category-ids <ids> --tags <tags>` | "Change the title / move to another category" |
-| `python {baseDir}/scripts/footprints.py batch-update <updates>` | "Reorganize all my bookmarks" (max 50) |
-| `python {baseDir}/scripts/footprints.py categories` | Discover available categories |
-| `python {baseDir}/scripts/footprints.py create-category <name> [--category-set-id <id>]` | "Create a new category" |
-| `python {baseDir}/scripts/footprints.py tags` | Discover existing tags |
-| `python {baseDir}/scripts/footprints.py category-sets` | List category sets |
-| `python {baseDir}/scripts/footprints.py create-category-set <name>` | "Create a workspace" |
+| Command | What it does |
+|---------|-------------|
+| `python {baseDir}/scripts/footprints.py update <id> --title <t> --description <d> --content-type <ct> --category-ids <ids> --tags <tags>` | Modify a footprint's title, categories, tags |
+| `python {baseDir}/scripts/footprints.py batch-update <updates>` | Batch reorganize footprints (max 50 per call) |
+| `python {baseDir}/scripts/footprints.py categories` | List all available categories |
+| `python {baseDir}/scripts/footprints.py create-category <name> [--category-set-id <id>]` | Create a new category |
+| `python {baseDir}/scripts/footprints.py tags` | List all used tags |
+| `python {baseDir}/scripts/footprints.py content-types` | List used content types (article/video/image/audio/page) |
+| `python {baseDir}/scripts/footprints.py category-sets` | List all category sets (workspaces) |
+| `python {baseDir}/scripts/footprints.py create-category-set <name>` | Create a new category set |
 
 ### Share
 
-| Command | Use when user says... |
-|---------|----------------------|
-| `python {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "Create a shared collection" |
-| `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "Send invite link to my team" |
-| `python {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "I have an invite code" |
-| `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | "Add this to team collection" |
-| `python {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | "Remove this from shared" |
-| `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "Save that shared bookmark to my own" |
+| Command | What it does |
+|---------|-------------|
+| `python {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | Create a shared category |
+| `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | Generate an invite link |
+| `python {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | Join a shared category via invite code |
+| `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | Add a footprint to a shared category |
+| `python {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | Remove a footprint from a shared category |
+| `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | Copy a shared footprint to your personal collection |
 
-### Deliver
+### Utilities
 
-| Command | Use when user says... |
-|---------|----------------------|
-| `python {baseDir}/scripts/footprints.py me` | Confirm identity at session start |
-| `python {baseDir}/scripts/footprints.py agent_magic_link` | Done organizing → generate link → send to user |
+| Command | What it does |
+|---------|-------------|
+| `python {baseDir}/scripts/footprints.py me` | Confirm current identity |
+| `python {baseDir}/scripts/footprints.py agent_magic_link` | Generate a magic link — send to user when done |
+| `python {baseDir}/scripts/footprints.py agent_register` | Re-register / rotate credentials ⚠️ creates new account |
 
 ## Core Workflows
 

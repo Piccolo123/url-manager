@@ -155,72 +155,50 @@ rm -rf /tmp/um
 - **魔法链接**：`agent_magic_link` 为人类用户生成可点击的卡片界面 URL——有效期 30 天，可重复使用
 - **账号升级**：用户后续绑定手机号后，Agent 创建的账号无缝升级为正式账号
 
-## 快捷对照
+## Command Reference
 
-### 用户说…… → 执行
-
-| 用户说 | 命令 |
-|--------|------|
-| "收藏/保存这个链接" | `python {baseDir}/scripts/footprints.py add <url> --title <文本> [--description <desc>] [--content-type <type>] [--category-ids <ids>] [--tags <tags>] [--json]` |
-| "找那篇关于XX的文章" | `python {baseDir}/scripts/footprints.py search <关键词> [--limit <n>] [--json]` |
-| "看看我的收藏" | `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>] [--json]` |
-| "看看这条详情" | `python {baseDir}/scripts/footprints.py get <id> [--json]` |
-| "改个标题/移到另一个分类" | `python {baseDir}/scripts/footprints.py update <id> --title <t> --category-ids <ids> [--json]` |
-| "帮我把收藏整理一下" | `python {baseDir}/scripts/footprints.py batch-update '<json>' [--json]` |
-| "新建一个分类" | `python {baseDir}/scripts/footprints.py create-category <名称> [--json]` |
-| "建个工作区" | `python {baseDir}/scripts/footprints.py create-category-set <名称> [--json]` |
-| "建一个共享收藏夹" | `python {baseDir}/scripts/footprints.py create-shared-category <名称> --mode cocreate [--json]` |
-| "把邀请链接发给同事" | `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--json]` |
-| "我有个邀请码" | `python {baseDir}/scripts/footprints.py join-shared-category <code> [--json]` |
-| "把这个加到团队收藏里" | `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id> [--json]` |
-| "把共享的存到我自己的" | `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids> [--json]` |
-| 确认身份 | `python {baseDir}/scripts/footprints.py me [--json]` |
-| 整理完毕 → 发给用户 | `python {baseDir}/scripts/footprints.py agent_magic_link [--json]` |
-| 重新认证（换 Token）⚠️ | `python {baseDir}/scripts/footprints.py agent_register [--json]` ⚠️ 会创建新账号，旧数据丢失 |
-| 查看已使用的内容类型 | `python {baseDir}/scripts/footprints.py content-types [--json]` |
-
-## 完整命令参考
+根据用户的指令，理解用户真实需求后，调用一个或多个命令来完成。
 
 ### 收藏与搜索
 
-| 命令 | 用户说……时使用 |
-|------|--------------|
-| `python {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --category-ids <ids> --tags <tags>` | "收藏/保存这个链接" |
-| `python {baseDir}/scripts/footprints.py get <id>` | "看看这条的详情" |
-| `python {baseDir}/scripts/footprints.py search <query>` | "找那篇关于 Docker 的文章" |
-| `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | "看看我的收藏" |
+| 命令 | 作用 |
+|------|------|
+| `python {baseDir}/scripts/footprints.py add <url> --title <title> --description <desc> --content-type <type> --category-ids <ids> --tags <tags>` | 收藏链接或纯文字内容（url 可为空） |
+| `python {baseDir}/scripts/footprints.py get <id>` | 查看某条收藏的详细信息 |
+| `python {baseDir}/scripts/footprints.py search <query>` | 全文搜索标题、描述、AI 摘要 |
+| `python {baseDir}/scripts/footprints.py list [--category-id <id>] [--limit <n>]` | 列出收藏列表 |
 
 ### 整理
 
-| 命令 | 用户说……时使用 |
-|------|--------------|
-| `python {baseDir}/scripts/footprints.py update <id> --title <t> --description <d> --category-ids <ids> --tags <tags>` | "改个标题 / 移到另一个分类" |
-| `python {baseDir}/scripts/footprints.py batch-update <updates>` | "帮我把收藏整理一下"（最多 50 条） |
-| `python {baseDir}/scripts/footprints.py categories` | 了解有哪些分类 |
-| `python {baseDir}/scripts/footprints.py create-category <name> [--category-set-id <id>]` | "新建一个分类" |
-| `python {baseDir}/scripts/footprints.py tags` | 了解已有标签 |
-| `python {baseDir}/scripts/footprints.py content-types` | 查看已使用的内容类型 |
-| `python {baseDir}/scripts/footprints.py category-sets` | 列出分类集 |
-| `python {baseDir}/scripts/footprints.py create-category-set <name>` | "建个工作区" |
+| 命令 | 作用 |
+|------|------|
+| `python {baseDir}/scripts/footprints.py update <id> --title <t> --description <d> --content-type <ct> --category-ids <ids> --tags <tags>` | 修改收藏的标题、分类、标签等 |
+| `python {baseDir}/scripts/footprints.py batch-update <updates>` | 批量整理收藏（每次最多 50 条） |
+| `python {baseDir}/scripts/footprints.py categories` | 列出所有可用分类 |
+| `python {baseDir}/scripts/footprints.py create-category <name> [--category-set-id <id>]` | 创建新分类 |
+| `python {baseDir}/scripts/footprints.py tags` | 列出所有已使用的标签 |
+| `python {baseDir}/scripts/footprints.py content-types` | 列出已使用的内容类型（article/video/image/audio/page） |
+| `python {baseDir}/scripts/footprints.py category-sets` | 列出所有分类集（工作区） |
+| `python {baseDir}/scripts/footprints.py create-category-set <name>` | 创建新分类集 |
 
 ### 共享
 
-| 命令 | 用户说……时使用 |
-|------|--------------|
-| `python {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | "建一个共享收藏夹" |
-| `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | "把邀请链接发给同事" |
-| `python {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | "我有个邀请码" |
-| `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | "把这个加到团队收藏里" |
-| `python {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | "把这个从共享里移除" |
-| `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | "把这条共享的存到我自己的收藏" |
+| 命令 | 作用 |
+|------|------|
+| `python {baseDir}/scripts/footprints.py create-shared-category <name> --mode cocreate\|subscribe --description <desc>` | 创建共享分类 |
+| `python {baseDir}/scripts/footprints.py create-invite-link <sc_id> [--duration-hours 24]` | 生成邀请链接 |
+| `python {baseDir}/scripts/footprints.py join-shared-category <invite_code>` | 通过邀请码加入共享分类 |
+| `python {baseDir}/scripts/footprints.py add-to-shared <sc_id> --collection-id <id>` | 将收藏添加到共享分类 |
+| `python {baseDir}/scripts/footprints.py remove-from-shared <sc_id> --collection-id <id>` | 从共享分类中移除收藏 |
+| `python {baseDir}/scripts/footprints.py copy <id> --category-ids <ids>` | 将共享收藏复制到个人收藏 |
 
-### 交付
+### 工具
 
-| 命令 | 用户说……时使用 |
-|------|--------------|
-| `python {baseDir}/scripts/footprints.py me` | 会话开始时确认身份 |
-| `python {baseDir}/scripts/footprints.py agent_magic_link` | 整理完毕 → 生成链接 → 发给用户 |
-| `python {baseDir}/scripts/footprints.py agent_register` | 重新注册 / 更换凭证 |
+| 命令 | 作用 |
+|------|------|
+| `python {baseDir}/scripts/footprints.py me` | 确认当前身份 |
+| `python {baseDir}/scripts/footprints.py agent_magic_link` | 生成魔法链接——整理完毕后发给用户 |
+| `python {baseDir}/scripts/footprints.py agent_register` | 重新注册 / 更换凭证 ⚠️ 会创建新账号 |
 
 ## 核心工作流
 
