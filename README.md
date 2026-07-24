@@ -39,6 +39,13 @@
 
 详见 [ai-footprints/SKILL.md](ai-footprints/SKILL.md) — Agent 接入指南。
 
+### Hermes Tweet 辅助采集
+
+如果资料来源在 X/Twitter 上，可以先用
+[hermes-tweet-footprints/SKILL.md](hermes-tweet-footprints/SKILL.md)
+搜索推文、回复、用户资料或监控结果，再把筛选后的公开 URL、标题、摘要和标签写入足迹。
+Hermes Tweet 的 API key 保持在 Hermes 运行环境中，不写入足迹 API 请求。
+
 ---
 
 © 2026 上海欧星实业发展有限公司
