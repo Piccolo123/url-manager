@@ -26,7 +26,7 @@ Your stuff lives everywhere — a YouTube workout video, an Amazon gear link, a 
 
 **URL Manager fixes this.** Save anything from anywhere into one organized library. No platform lock-in. Then **share it in one click** — hand your curated running knowledge base to your whole running club, and everyone stays in sync.
 
-Open **[足迹AI](https://ai.ocean94.com/)** — it's your browser homepage with a built-in search engine. Beautiful cards for every saved item, one click to where you need to go.
+For the human on the other side, we provide **[足迹AI](https://ai.ocean94.com/)** — a beautiful browser homepage with a built-in search engine. Every saved item becomes a card, one click to where you need to go. Just send them the magic link and they're in.
 
 **Zero setup — token auto-management.** The `footprints.py` script handles everything: reads `{baseDir}/.token`, auto-registers on first use, stores token locally with `chmod 600`. Just run any command and it works.
 
